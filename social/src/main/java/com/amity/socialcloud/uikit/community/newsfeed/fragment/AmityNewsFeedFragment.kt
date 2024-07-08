@@ -115,14 +115,14 @@ class AmityNewsFeedFragment : AmityBaseFragment(),
                         bottomSheet.dismiss()
                     }
                 ),
-                BottomSheetMenuItem(
+                /*BottomSheetMenuItem(
                     iconResId = R.drawable.ic_amity_ic_live_stream_create,
                     titleResId = R.string.amity_video_stream_title,
                     action = {
                         creationTargetSelection.launch(AmityTargetSelectionPageType.LIVESTREAM)
                         bottomSheet.dismiss()
                     }
-                ),
+                ),*/
                 BottomSheetMenuItem(
                     iconResId = R.drawable.ic_amity_ic_poll_create,
                     titleResId = R.string.amity_general_poll,
