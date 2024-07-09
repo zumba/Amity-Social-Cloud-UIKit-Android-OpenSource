@@ -167,6 +167,8 @@ class AmityUserProfilePageFragment : AmityBaseFragment(),
                         bottomSheet.dismiss()
                     }
                 ),
+                /*
+                // Livestream button have to be hidden. Livestreams are not included in our contract
                 BottomSheetMenuItem(
                     iconResId = R.drawable.ic_amity_ic_live_stream_create,
                     titleResId = R.string.amity_video_stream_title,
@@ -174,7 +176,7 @@ class AmityUserProfilePageFragment : AmityBaseFragment(),
                         createLiveStreamPost.launch(null)
                         bottomSheet.dismiss()
                     }
-                ),
+                ),*/
                 BottomSheetMenuItem(
                     iconResId = R.drawable.ic_amity_ic_poll_create,
                     titleResId = R.string.amity_general_poll,
