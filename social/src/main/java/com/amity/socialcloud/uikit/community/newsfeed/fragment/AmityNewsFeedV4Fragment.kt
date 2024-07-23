@@ -77,6 +77,8 @@ class AmityNewsFeedV4Fragment : AmityBaseFragment() {
                         bottomSheet.dismiss()
                     }
                 ),
+                /*
+                // Story button hidden for now, as iOS is using version 3.*
                 BottomSheetMenuItem(
                     iconResId = R.drawable.amity_ic_story_create,
                     titleResId = R.string.amity_story,
@@ -85,6 +87,7 @@ class AmityNewsFeedV4Fragment : AmityBaseFragment() {
                         bottomSheet.dismiss()
                     }
                 ),
+                */
             )
         bottomSheet.show(postCreationOptions)
     }
