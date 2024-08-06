@@ -117,13 +117,18 @@ class AmityPostTargetPickerFragment : AmityBaseFragment(),
     }
 
     private fun initProfileImage() {
-        val user = viewModel.getUser()
-        val imageURL = user.getAvatar()?.getUrl(AmityImage.Size.SMALL)
-        Glide.with(this)
-            .load(imageURL)
-            .placeholder(R.drawable.amity_ic_default_profile_large)
-            .centerCrop()
-            .into(binding.avProfile)
+        try {
+            val user = viewModel.getUser()
+            val imageURL = user.getAvatar()?.getUrl(AmityImage.Size.SMALL)
+            Glide.with(this)
+                .load(imageURL)
+                .placeholder(R.drawable.amity_ic_default_profile_large)
+                .centerCrop()
+                .into(binding.avProfile)
+        } catch (t: Throwable) {
+            // ignore crash f.e. when network is not available
+            t.printStackTrace()
+        }
     }
 
     private fun initRecyclerView() {
