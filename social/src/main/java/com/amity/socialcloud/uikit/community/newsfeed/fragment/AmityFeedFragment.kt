@@ -276,7 +276,7 @@ abstract class AmityFeedFragment : AmityBaseFragment() {
 
     private fun observeUserClickEvents() {
         getViewModel().getUserClickEvents(
-            onReceivedEvent = { getViewModel().userClickListener.onClickUser(it) }
+            onReceivedEvent = { getViewModel().userClickListener?.onClickUser(it) }
         )
             .untilLifecycleEnd(this)
             .subscribe()
@@ -285,7 +285,7 @@ abstract class AmityFeedFragment : AmityBaseFragment() {
     private fun observeCommunityClickEvents() {
         getViewModel().getCommunityClickEvents(
             onReceivedEvent = {
-                getViewModel().communityClickListener.onClickCommunity(it)
+                getViewModel().communityClickListener?.onClickCommunity(it)
             }
         )
             .untilLifecycleEnd(this)

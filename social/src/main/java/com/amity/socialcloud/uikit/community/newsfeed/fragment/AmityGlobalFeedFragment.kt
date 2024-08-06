@@ -1,6 +1,7 @@
 package com.amity.socialcloud.uikit.community.newsfeed.fragment
 
 import android.content.Intent
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,20 @@ import io.reactivex.rxjava3.core.Flowable
 class AmityGlobalFeedFragment : AmityFeedFragment() {
 
     private val communityHomeViewModel: AmityCommunityHomeViewModel by activityViewModels()
+    private lateinit var userClickListener: AmityUserClickListener
+    private lateinit var communityClickListener: AmityCommunityClickListener
+    private lateinit var postShareClickListener: AmityPostShareClickListener
+    private var feedRefreshEvents = Flowable.never<AmityFeedRefreshEvent>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        getViewModel().let { viewModel ->
+            viewModel.userClickListener = userClickListener
+            viewModel.communityClickListener = communityClickListener
+            viewModel.postShareClickListener = postShareClickListener
+            viewModel.feedRefreshEvents = feedRefreshEvents
+        }
+    }
 
     override fun getViewModel(): AmityGlobalFeedViewModel {
         return ViewModelProvider(requireActivity()).get(AmityGlobalFeedViewModel::class.java)
@@ -45,6 +60,16 @@ class AmityGlobalFeedFragment : AmityFeedFragment() {
         return binding.root
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        getViewModel().let { viewModel ->
+            viewModel.userClickListener = null
+            viewModel.communityClickListener = null
+            viewModel.postShareClickListener = null
+            viewModel.feedRefreshEvents = Flowable.never()
+        }
+    }
+
     class Builder internal constructor() {
         private var userClickListener: AmityUserClickListener? = null
         private var communityClickListener: AmityCommunityClickListener? = null
@@ -54,7 +79,7 @@ class AmityGlobalFeedFragment : AmityFeedFragment() {
 
         fun build(activity: AppCompatActivity): AmityGlobalFeedFragment {
             val fragment = AmityGlobalFeedFragment()
-            val viewModel = ViewModelProvider(activity).get(AmityGlobalFeedViewModel::class.java)
+            // val viewModel = ViewModelProvider(activity).get(AmityGlobalFeedViewModel::class.java)
             if (userClickListener == null) {
                 userClickListener = object : AmityUserClickListener {
                     override fun onClickUser(user: AmityUser) {
@@ -62,7 +87,7 @@ class AmityGlobalFeedFragment : AmityFeedFragment() {
                     }
                 }
             }
-            viewModel.userClickListener = userClickListener!!
+            fragment.userClickListener = userClickListener!!
 
             if (communityClickListener == null) {
                 communityClickListener = object : AmityCommunityClickListener {
@@ -74,9 +99,9 @@ class AmityGlobalFeedFragment : AmityFeedFragment() {
                     }
                 }
             }
-            viewModel.communityClickListener = communityClickListener!!
-            viewModel.postShareClickListener = postShareClickListener
-            viewModel.feedRefreshEvents = feedRefreshEvents
+            fragment.communityClickListener = communityClickListener!!
+            fragment.postShareClickListener = postShareClickListener
+            fragment.feedRefreshEvents = feedRefreshEvents
             return fragment
         }
 

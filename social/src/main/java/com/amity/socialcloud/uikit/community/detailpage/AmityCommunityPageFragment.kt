@@ -232,6 +232,8 @@ class AmityCommunityPageFragment : RxFragment(),
                 )
             )
 
+        /*
+        // Story button hidden for now, as iOS is using version 3.*
         if (viewModel.hasManageStoryPermission) {
             postCreationOptions.add(
                 index = 1,
@@ -249,6 +251,7 @@ class AmityCommunityPageFragment : RxFragment(),
                 )
             )
         }
+        */
         bottomSheet.show(postCreationOptions)
     }
 

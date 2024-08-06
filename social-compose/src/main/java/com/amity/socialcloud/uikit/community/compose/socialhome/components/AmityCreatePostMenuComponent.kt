@@ -93,6 +93,8 @@ fun AmityCreatePostMenuComponent(
                     )
                 },
             )
+            /*
+            // Story button hidden for now, as iOS is using version 3.*
             DropdownMenuItem(
                 text = {
                     AmityBaseElement(
@@ -127,6 +129,7 @@ fun AmityCreatePostMenuComponent(
                     behavior.goToSelectStoryTargetPage(context)
                 }
             )
+            */
 
             /*
             // TODO: 17/6/24 enable when feature is ready

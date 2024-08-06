@@ -43,7 +43,9 @@ class AmityCommunityHomePageFragment : Fragment() {
     private lateinit var fragmentStateAdapter: AmityFragmentStateAdapter
     private lateinit var globalSearchStateAdapter: AmityFragmentStateAdapter
     private lateinit var searchMenuItem: MenuItem
-    private lateinit var binding: AmityFragmentCommunityHomePageBinding
+    private var _binding: AmityFragmentCommunityHomePageBinding? = null
+    private val binding: AmityFragmentCommunityHomePageBinding
+        get() = _binding!!
     private val viewModel: AmityCommunityHomeViewModel by viewModels()
     private var textChangeDisposable: Disposable? = null
     private val textChangeSubject: PublishSubject<String> = PublishSubject.create()
@@ -54,7 +56,7 @@ class AmityCommunityHomePageFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(
+        _binding = DataBindingUtil.inflate(
             inflater,
             R.layout.amity_fragment_community_home_page,
             container,
@@ -80,6 +82,7 @@ class AmityCommunityHomePageFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        _binding = null
         if (textChangeDisposable?.isDisposed == false) {
             textChangeDisposable?.dispose()
         }
@@ -88,11 +91,11 @@ class AmityCommunityHomePageFragment : Fragment() {
     private fun initTabLayout() {
         fragmentStateAdapter = AmityFragmentStateAdapter(
             childFragmentManager,
-            requireActivity().lifecycle
+            lifecycle
         )
         globalSearchStateAdapter = AmityFragmentStateAdapter(
             childFragmentManager,
-            requireActivity().lifecycle
+            lifecycle
         )
         fragmentStateAdapter.setFragmentList(
             arrayListOf(

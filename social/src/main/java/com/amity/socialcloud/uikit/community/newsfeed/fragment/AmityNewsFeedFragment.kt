@@ -107,6 +107,8 @@ class AmityNewsFeedFragment : AmityBaseFragment(),
                         bottomSheet.dismiss()
                     }
                 ),
+                /*
+                // Story button hidden for now, as iOS is using version 3.*
                 BottomSheetMenuItem(
                     iconResId = R.drawable.amity_ic_story_create,
                     titleResId = R.string.amity_story,
@@ -115,6 +117,7 @@ class AmityNewsFeedFragment : AmityBaseFragment(),
                         bottomSheet.dismiss()
                     }
                 ),
+                */
                 /*
                 // Livestream button have to be hidden. Livestreams are not included in our contract
                 BottomSheetMenuItem(

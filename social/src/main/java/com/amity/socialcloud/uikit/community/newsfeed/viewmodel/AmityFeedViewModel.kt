@@ -28,9 +28,9 @@ import java.util.*
 abstract class AmityFeedViewModel : ViewModel(), UserViewModel, PostViewModel, CommentViewModel,
     PermissionViewModel {
 
-    lateinit var userClickListener: AmityUserClickListener
-    lateinit var communityClickListener: AmityCommunityClickListener
-    lateinit var postShareClickListener: AmityPostShareClickListener
+    var userClickListener: AmityUserClickListener? = null
+    var communityClickListener: AmityCommunityClickListener? = null
+    var postShareClickListener: AmityPostShareClickListener? = null
     internal var feedLoadStatePublisher = PublishSubject.create<AmityFeedLoadStateEvent>()
     internal var feedRefreshEvents = Flowable.never<AmityFeedRefreshEvent>()
 
