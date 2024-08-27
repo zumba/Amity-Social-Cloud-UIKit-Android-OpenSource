@@ -24,7 +24,9 @@ import com.amity.socialcloud.uikit.common.base.AmityFragmentStateAdapter
 import com.amity.socialcloud.uikit.common.common.views.AmityColorPaletteUtil
 import com.amity.socialcloud.uikit.common.common.views.AmityColorShade
 import com.amity.socialcloud.uikit.common.model.AmityEventIdentifier
+import com.amity.socialcloud.uikit.common.model.AmityEventType
 import com.amity.socialcloud.uikit.common.utils.AmityAndroidUtil
+import com.amity.socialcloud.uikit.common.utils.AmityEvent
 import com.amity.socialcloud.uikit.community.R
 import com.amity.socialcloud.uikit.community.databinding.AmityFragmentCommunityHomePageBinding
 import com.amity.socialcloud.uikit.community.explore.fragments.AmityCommunityExplorerFragment
@@ -34,7 +36,6 @@ import com.amity.socialcloud.uikit.community.newsfeed.fragment.AmityNewsFeedV4Fr
 import com.amity.socialcloud.uikit.community.search.AmityUserSearchFragment
 import com.amity.socialcloud.uikit.community.setting.AmityCommunitySearchFragment
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
 
@@ -50,6 +51,19 @@ class AmityCommunityHomePageFragment : Fragment() {
     private var textChangeDisposable: Disposable? = null
     private val searchString = ObservableField("")
     private var useNewsFeedV4: Boolean = false
+
+    private val eventCallback: AmityEvent<AmityEventType>.(AmityEventType) -> Unit = { event ->
+        when (event.type) {
+            AmityEventIdentifier.EXPLORE_COMMUNITY -> {
+                //searchMenuItem.expandActionView()
+                binding.tabLayout.switchTab(1)
+            }
+
+            else -> {
+
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -81,6 +95,7 @@ class AmityCommunityHomePageFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        removeViewModelListeners()
         _binding = null
         if (textChangeDisposable?.isDisposed == false) {
             textChangeDisposable?.dispose()
@@ -133,18 +148,11 @@ class AmityCommunityHomePageFragment : Fragment() {
     }
 
     private fun addViewModelListeners() {
-        viewModel.onAmityEventReceived += { event ->
-            when (event.type) {
-                AmityEventIdentifier.EXPLORE_COMMUNITY -> {
-                    //searchMenuItem.expandActionView()
-                    binding.tabLayout.switchTab(1)
-                }
+        viewModel.onAmityEventReceived += eventCallback
+    }
 
-                else -> {
-
-                }
-            }
-        }
+    private fun removeViewModelListeners() {
+        viewModel.onAmityEventReceived -= eventCallback
     }
 
     private fun setUpSearchTabLayout() {
