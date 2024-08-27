@@ -48,7 +48,6 @@ class AmityCommunityHomePageFragment : Fragment() {
         get() = _binding!!
     private val viewModel: AmityCommunityHomeViewModel by activityViewModels()
     private var textChangeDisposable: Disposable? = null
-    private val textChangeSubject: PublishSubject<String> = PublishSubject.create()
     private val searchString = ObservableField("")
     private var useNewsFeedV4: Boolean = false
 
@@ -167,7 +166,7 @@ class AmityCommunityHomePageFragment : Fragment() {
     }
 
     private fun subscribeTextChangeEvents() {
-        textChangeDisposable = textChangeSubject.debounce(300, TimeUnit.MILLISECONDS)
+        textChangeDisposable = viewModel.textChangeSubject.debounce(300, TimeUnit.MILLISECONDS)
             .map {
                 if (searchString.get() != it) {
                     searchString.set(it)
@@ -218,12 +217,12 @@ class AmityCommunityHomePageFragment : Fragment() {
         searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
         val queryTextListener = object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String?): Boolean {
-                newText?.let { textChangeSubject.onNext(it) }
+                newText?.let { viewModel.textChangeSubject.onNext(it) }
                 return true
             }
 
             override fun onQueryTextSubmit(query: String?): Boolean {
-                query?.let { textChangeSubject.onNext(it) }
+                query?.let { viewModel.textChangeSubject.onNext(it) }
                 searchMenuItem.collapseActionView()
                 return true
             }
