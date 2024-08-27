@@ -19,7 +19,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ObservableField
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.amity.socialcloud.uikit.common.base.AmityFragmentStateAdapter
 import com.amity.socialcloud.uikit.common.common.views.AmityColorPaletteUtil
 import com.amity.socialcloud.uikit.common.common.views.AmityColorShade
@@ -46,7 +46,7 @@ class AmityCommunityHomePageFragment : Fragment() {
     private var _binding: AmityFragmentCommunityHomePageBinding? = null
     private val binding: AmityFragmentCommunityHomePageBinding
         get() = _binding!!
-    private val viewModel: AmityCommunityHomeViewModel by viewModels()
+    private val viewModel: AmityCommunityHomeViewModel by activityViewModels()
     private var textChangeDisposable: Disposable? = null
     private val textChangeSubject: PublishSubject<String> = PublishSubject.create()
     private val searchString = ObservableField("")
