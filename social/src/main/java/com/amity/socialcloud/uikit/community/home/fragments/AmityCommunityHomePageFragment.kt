@@ -19,12 +19,14 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ObservableField
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.amity.socialcloud.uikit.common.base.AmityFragmentStateAdapter
 import com.amity.socialcloud.uikit.common.common.views.AmityColorPaletteUtil
 import com.amity.socialcloud.uikit.common.common.views.AmityColorShade
 import com.amity.socialcloud.uikit.common.model.AmityEventIdentifier
+import com.amity.socialcloud.uikit.common.model.AmityEventType
 import com.amity.socialcloud.uikit.common.utils.AmityAndroidUtil
+import com.amity.socialcloud.uikit.common.utils.AmityEvent
 import com.amity.socialcloud.uikit.community.R
 import com.amity.socialcloud.uikit.community.databinding.AmityFragmentCommunityHomePageBinding
 import com.amity.socialcloud.uikit.community.explore.fragments.AmityCommunityExplorerFragment
@@ -34,7 +36,6 @@ import com.amity.socialcloud.uikit.community.newsfeed.fragment.AmityNewsFeedV4Fr
 import com.amity.socialcloud.uikit.community.search.AmityUserSearchFragment
 import com.amity.socialcloud.uikit.community.setting.AmityCommunitySearchFragment
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
 
 
@@ -46,11 +47,23 @@ class AmityCommunityHomePageFragment : Fragment() {
     private var _binding: AmityFragmentCommunityHomePageBinding? = null
     private val binding: AmityFragmentCommunityHomePageBinding
         get() = _binding!!
-    private val viewModel: AmityCommunityHomeViewModel by viewModels()
+    private val viewModel: AmityCommunityHomeViewModel by activityViewModels()
     private var textChangeDisposable: Disposable? = null
-    private val textChangeSubject: PublishSubject<String> = PublishSubject.create()
     private val searchString = ObservableField("")
     private var useNewsFeedV4: Boolean = false
+
+    private val eventCallback: AmityEvent<AmityEventType>.(AmityEventType) -> Unit = { event ->
+        when (event.type) {
+            AmityEventIdentifier.EXPLORE_COMMUNITY -> {
+                //searchMenuItem.expandActionView()
+                binding.tabLayout.switchTab(1)
+            }
+
+            else -> {
+
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -82,6 +95,7 @@ class AmityCommunityHomePageFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        removeViewModelListeners()
         _binding = null
         if (textChangeDisposable?.isDisposed == false) {
             textChangeDisposable?.dispose()
@@ -134,18 +148,11 @@ class AmityCommunityHomePageFragment : Fragment() {
     }
 
     private fun addViewModelListeners() {
-        viewModel.onAmityEventReceived += { event ->
-            when (event.type) {
-                AmityEventIdentifier.EXPLORE_COMMUNITY -> {
-                    //searchMenuItem.expandActionView()
-                    binding.tabLayout.switchTab(1)
-                }
+        viewModel.onAmityEventReceived += eventCallback
+    }
 
-                else -> {
-
-                }
-            }
-        }
+    private fun removeViewModelListeners() {
+        viewModel.onAmityEventReceived -= eventCallback
     }
 
     private fun setUpSearchTabLayout() {
@@ -167,7 +174,7 @@ class AmityCommunityHomePageFragment : Fragment() {
     }
 
     private fun subscribeTextChangeEvents() {
-        textChangeDisposable = textChangeSubject.debounce(300, TimeUnit.MILLISECONDS)
+        textChangeDisposable = viewModel.textChangeSubject.debounce(300, TimeUnit.MILLISECONDS)
             .map {
                 if (searchString.get() != it) {
                     searchString.set(it)
@@ -218,12 +225,12 @@ class AmityCommunityHomePageFragment : Fragment() {
         searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().componentName))
         val queryTextListener = object : SearchView.OnQueryTextListener {
             override fun onQueryTextChange(newText: String?): Boolean {
-                newText?.let { textChangeSubject.onNext(it) }
+                newText?.let { viewModel.textChangeSubject.onNext(it) }
                 return true
             }
 
             override fun onQueryTextSubmit(query: String?): Boolean {
-                query?.let { textChangeSubject.onNext(it) }
+                query?.let { viewModel.textChangeSubject.onNext(it) }
                 searchMenuItem.collapseActionView()
                 return true
             }

@@ -53,6 +53,11 @@ class AmityGlobalFeedFragment : AmityFeedFragment() {
         binding.btnExplore.setOnClickListener {
             communityHomeViewModel.triggerEvent(AmityEventIdentifier.EXPLORE_COMMUNITY)
         }
+
+        // tvCreateCommunity is hidden because we don't want to let users create communities on their own
+        binding.tvFindCommunity.visibility = View.GONE
+        binding.tvCreateCommunity.visibility = View.GONE
+
         binding.tvCreateCommunity.setOnClickListener {
             val intent = Intent(requireContext(), AmityCommunityCreatorActivity::class.java)
             startActivity(intent)
