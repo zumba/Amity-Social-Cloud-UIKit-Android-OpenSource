@@ -55,7 +55,11 @@ class AmityMediaGalleryFragment : AmityBaseFragment() {
     private fun setUpTabLayout() {
         fragmentStateAdapter = AmityFragmentStateAdapter(childFragmentManager, this.lifecycle)
         fragmentStateAdapter.setFragmentList(
-            arrayListOf(photoGalleryFragment(), videoGalleryFragment())
+            arrayListOf(
+                photoGalleryFragment(),
+                // adding video attachments disabled temporarily due to lack of HEVC support
+                // videoGalleryFragment()
+            )
         )
         binding.mediaGalleryViewpager.adapter = fragmentStateAdapter
         binding.mediaGalleryViewpager.isUserInputEnabled = false
@@ -69,16 +73,21 @@ class AmityMediaGalleryFragment : AmityBaseFragment() {
         ) { _, _ -> }.attach()
         val photoTabTextView =
             View.inflate(requireContext(), R.layout.amity_view_media_gallery_tab, null) as TextView
-        val videoTabTextView =
-            View.inflate(requireContext(), R.layout.amity_view_media_gallery_tab, null) as TextView
         photoTabTextView.text = fragmentStateAdapter.getTitle(0)
-        videoTabTextView.text = fragmentStateAdapter.getTitle(1)
         binding.mediaGalleryTabLayout.getTabAt(0)?.customView = photoTabTextView
-        binding.mediaGalleryTabLayout.getTabAt(1)?.customView = videoTabTextView
+
+        var videoTabTextView: TextView? = null
+        if (fragmentStateAdapter.itemCount > 1) {
+            videoTabTextView = View.inflate(
+                requireContext(), R.layout.amity_view_media_gallery_tab, null
+            ) as TextView
+            videoTabTextView.text = fragmentStateAdapter.getTitle(1)
+            binding.mediaGalleryTabLayout.getTabAt(1)?.customView = videoTabTextView
+        }
         registerTabChangeListener(photoTabTextView, videoTabTextView)
     }
 
-    private fun registerTabChangeListener(photoTabTextView: TextView, videoTabTextView: TextView) {
+    private fun registerTabChangeListener(photoTabTextView: TextView, videoTabTextView: TextView?) {
         val videoTitle = requireActivity().getString(R.string.amity_general_videos)
         val photoTitle = requireActivity().getString(R.string.amity_general_photos)
         binding.mediaGalleryViewpager.registerOnPageChangeCallback(object :
@@ -88,13 +97,13 @@ class AmityMediaGalleryFragment : AmityBaseFragment() {
                 if (fragmentStateAdapter.getTitle(position) == photoTitle) {
                     photoTabTextView.setTextColor(selectedTextColor())
                     photoTabTextView.setBackgroundDrawable(selectedTextBackground())
-                    videoTabTextView.setTextColor(unselectedTextColor())
-                    videoTabTextView.setBackgroundDrawable(unselectedTextBackground())
+                    videoTabTextView?.setTextColor(unselectedTextColor())
+                    videoTabTextView?.setBackgroundDrawable(unselectedTextBackground())
                 } else if (fragmentStateAdapter.getTitle(position) == videoTitle) {
                     photoTabTextView.setTextColor(unselectedTextColor())
                     photoTabTextView.setBackgroundDrawable(unselectedTextBackground())
-                    videoTabTextView.setTextColor(selectedTextColor())
-                    videoTabTextView.setBackgroundDrawable(selectedTextBackground())
+                    videoTabTextView?.setTextColor(selectedTextColor())
+                    videoTabTextView?.setBackgroundDrawable(selectedTextBackground())
                 }
             }
         })
