@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.amity.socialcloud.sdk.model.core.user.AmityUser
@@ -25,13 +26,22 @@ import io.reactivex.rxjava3.core.Flowable
 class AmityGlobalFeedFragment : AmityFeedFragment() {
 
     private val communityHomeViewModel: AmityCommunityHomeViewModel by activityViewModels()
-    private lateinit var userClickListener: AmityUserClickListener
-    private lateinit var communityClickListener: AmityCommunityClickListener
-    private lateinit var postShareClickListener: AmityPostShareClickListener
+    private var userClickListener: AmityUserClickListener? = null
+    private var communityClickListener: AmityCommunityClickListener? = null
+    private var postShareClickListener: AmityPostShareClickListener? = null
     private var feedRefreshEvents = Flowable.never<AmityFeedRefreshEvent>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (userClickListener == null) {
+            userClickListener = defaultUserClickListener(this)
+        }
+        if (communityClickListener == null) {
+            communityClickListener = defaultCommunityClickListener(this)
+        }
+        if (postShareClickListener == null) {
+            postShareClickListener = defaultPostShareClickListener()
+        }
         getViewModel().let { viewModel ->
             viewModel.userClickListener = userClickListener
             viewModel.communityClickListener = communityClickListener
@@ -78,34 +88,18 @@ class AmityGlobalFeedFragment : AmityFeedFragment() {
     class Builder internal constructor() {
         private var userClickListener: AmityUserClickListener? = null
         private var communityClickListener: AmityCommunityClickListener? = null
-        private var postShareClickListener: AmityPostShareClickListener =
-            AmitySocialUISettings.postShareClickListener
+        private var postShareClickListener: AmityPostShareClickListener? = null
         private var feedRefreshEvents = Flowable.never<AmityFeedRefreshEvent>()
 
         fun build(activity: AppCompatActivity): AmityGlobalFeedFragment {
             val fragment = AmityGlobalFeedFragment()
             // val viewModel = ViewModelProvider(activity).get(AmityGlobalFeedViewModel::class.java)
-            if (userClickListener == null) {
-                userClickListener = object : AmityUserClickListener {
-                    override fun onClickUser(user: AmityUser) {
-                        AmitySocialUISettings.globalUserClickListener.onClickUser(fragment, user)
-                    }
-                }
-            }
-            fragment.userClickListener = userClickListener!!
-
-            if (communityClickListener == null) {
-                communityClickListener = object : AmityCommunityClickListener {
-                    override fun onClickCommunity(community: AmityCommunity) {
-                        AmitySocialUISettings.globalCommunityClickListener.onClickCommunity(
-                            fragment,
-                            community
-                        )
-                    }
-                }
-            }
-            fragment.communityClickListener = communityClickListener!!
+            fragment.userClickListener = userClickListener
+                ?: defaultUserClickListener(fragment)
+            fragment.communityClickListener = communityClickListener
+                ?: defaultCommunityClickListener(fragment)
             fragment.postShareClickListener = postShareClickListener
+                ?: defaultPostShareClickListener()
             fragment.feedRefreshEvents = feedRefreshEvents
             return fragment
         }
@@ -129,6 +123,23 @@ class AmityGlobalFeedFragment : AmityFeedFragment() {
         fun newInstance(): Builder {
             return Builder()
         }
+
+        private fun defaultUserClickListener(fragment: Fragment) = object : AmityUserClickListener {
+            override fun onClickUser(user: AmityUser) {
+                AmitySocialUISettings.globalUserClickListener.onClickUser(fragment, user)
+            }
+        }
+
+        private fun defaultCommunityClickListener(fragment: Fragment) =
+            object : AmityCommunityClickListener {
+                override fun onClickCommunity(community: AmityCommunity) {
+                    AmitySocialUISettings.globalCommunityClickListener.onClickCommunity(
+                        fragment, community
+                    )
+                }
+            }
+
+        private fun defaultPostShareClickListener() = AmitySocialUISettings.postShareClickListener
     }
 
 }
