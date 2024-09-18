@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.amity.socialcloud.sdk.api.core.AmityCoreClient
 import com.amity.socialcloud.sdk.api.social.AmitySocialClient
+import com.amity.socialcloud.sdk.api.social.post.review.AmityReviewStatus
 import com.amity.socialcloud.sdk.helper.core.mention.AmityMentionMetadata
 import com.amity.socialcloud.sdk.helper.core.mention.AmityMentionMetadataCreator
 import com.amity.socialcloud.sdk.model.core.content.AmityContentFeedType
@@ -14,7 +15,7 @@ import com.amity.socialcloud.sdk.model.core.file.AmityVideo
 import com.amity.socialcloud.sdk.model.core.file.upload.AmityUploadResult
 import com.amity.socialcloud.sdk.model.social.community.AmityCommunity
 import com.amity.socialcloud.sdk.model.social.post.AmityPost
-import com.amity.socialcloud.uikit.common.base.AmityBaseViewModel
+import com.amity.socialcloud.uikit.common.service.AmityFileService
 import com.amity.socialcloud.uikit.community.compose.post.model.AmityFileUploadState
 import com.amity.socialcloud.uikit.community.compose.post.model.AmityPostMedia
 import com.amity.socialcloud.uikit.community.compose.post.model.AmityPostMedia.Type
@@ -29,7 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class AmityPostCreationPageViewModel : AmityBaseViewModel() {
+class AmityPostComposerPageViewModel : AmityMediaAttachmentViewModel() {
 
     private var options: AmityPostComposerOptions? = null
 
@@ -45,16 +46,6 @@ class AmityPostCreationPageViewModel : AmityBaseViewModel() {
     private val deletedImageIds = mutableListOf<String>()
     private val uploadFailedMediaMap = LinkedHashMap<String, Boolean>()
 
-    private val _postAttachmentPickerEvent by lazy {
-        MutableStateFlow<AmityPostAttachmentPickerEvent>(AmityPostAttachmentPickerEvent.Initial)
-    }
-    val postAttachmentPickerEvent get() = _postAttachmentPickerEvent
-
-    private val _postAttachmentAllowedPickerType by lazy {
-        MutableStateFlow<AmityPostAttachmentAllowedPickerType>(AmityPostAttachmentAllowedPickerType.All)
-    }
-    val postAttachmentAllowedPickerType get() = _postAttachmentAllowedPickerType
-
     private val _postCreationEvent by lazy {
         MutableStateFlow<AmityPostCreationEvent>(AmityPostCreationEvent.Initial)
     }
@@ -64,6 +55,11 @@ class AmityPostCreationPageViewModel : AmityBaseViewModel() {
         MutableStateFlow<List<AmityPostMedia>>(emptyList())
     }
     val selectedMediaFiles get() = _selectedMediaFiles
+
+    private val _isAllMediaSuccessfullyUploaded by lazy {
+        MutableStateFlow(false)
+    }
+    val isAllMediaSuccessfullyUploaded get() = _isAllMediaSuccessfullyUploaded
 
     fun setComposerOptions(options: AmityPostComposerOptions) {
         this.options = options
@@ -421,7 +417,12 @@ class AmityPostCreationPageViewModel : AmityBaseViewModel() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSuccess {
-                setPostCreationEvent(AmityPostCreationEvent.Success)
+                if (it.getReviewStatus() == AmityReviewStatus.UNDER_REVIEW) {
+                    setPostCreationEvent(AmityPostCreationEvent.Pending)
+                } else {
+                    AmityPostComposerHelper.addNewPost(it)
+                    setPostCreationEvent(AmityPostCreationEvent.Success)
+                }
             }
             .doOnError {
                 setPostCreationEvent(AmityPostCreationEvent.Failed)
@@ -502,6 +503,7 @@ class AmityPostCreationPageViewModel : AmityBaseViewModel() {
         }
     }
 
+
     fun removeMedia(postMedia: AmityPostMedia) {
         mediaMap.remove(postMedia.url.toString())
         uploadFailedMediaMap.remove(postMedia.url.toString())
@@ -516,6 +518,8 @@ class AmityPostCreationPageViewModel : AmityBaseViewModel() {
             }
         }
         _selectedMediaFiles.value = mediaMap.values.toList()
+
+        checkAllMediaUploadedSuccessfully()
 
         if (mediaMap.isEmpty()) {
             setPostAttachmentAllowedPickerType(AmityPostAttachmentAllowedPickerType.All)
@@ -538,17 +542,13 @@ class AmityPostCreationPageViewModel : AmityBaseViewModel() {
         return mediaMap.values.any { it.type == Type.VIDEO }
     }
 
-    fun setPostAttachmentPickerEvent(event: AmityPostAttachmentPickerEvent) {
+    private fun checkAllMediaUploadedSuccessfully() {
         viewModelScope.launch {
-            _postAttachmentPickerEvent.value = event
-            delay(500)
-            _postAttachmentPickerEvent.value = AmityPostAttachmentPickerEvent.Initial
-        }
-    }
-
-    private fun setPostAttachmentAllowedPickerType(type: AmityPostAttachmentAllowedPickerType) {
-        viewModelScope.launch {
-            _postAttachmentAllowedPickerType.value = type
+            _isAllMediaSuccessfullyUploaded.value = if (mediaMap.isEmpty()) {
+                false
+            } else {
+                mediaMap.values.all { it.uploadState == AmityFileUploadState.COMPLETE }
+            }
         }
     }
 
@@ -562,28 +562,46 @@ class AmityPostCreationPageViewModel : AmityBaseViewModel() {
 
     private fun cancelUpload(uploadId: String?) {
         uploadId?.let {
-            AmityCoreClient.newFileRepository().cancelUpload(uploadId)
+            AmityFileService().cancelUpload(uploadId)
         }
     }
 
+
     private fun uploadMedia(postMedia: AmityPostMedia) {
-        AmityCoreClient.newFileRepository()
+        updateMediaTransCodingStatus(postMedia)
+        AmityFileService()
             .run {
                 when (postMedia.type) {
                     Type.IMAGE -> uploadImage(postMedia.url)
-                    Type.VIDEO -> uploadVideo(
-                        postMedia.url,
-                        AmityContentFeedType.POST
-                    )
+                    Type.VIDEO -> {
+                        uploadVideo(
+                            postMedia.url,
+                            AmityContentFeedType.POST
+                        )
+                    }
                 }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext {
+                        updateMediaUploadStatus(postMedia, it)
+                    }
+                    .ignoreElements()
+                    .subscribe()
             }
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnNext {
-                updateMediaUploadStatus(postMedia, it)
-            }
-            .ignoreElements()
-            .subscribe()
+    }
+
+    private fun updateMediaTransCodingStatus(
+        postMedia: AmityPostMedia,
+    ) {
+        val pm = AmityPostMedia(
+            id = postMedia.id,
+            uploadId = postMedia.uploadId,
+            url = postMedia.url,
+            uploadState = AmityFileUploadState.UPLOADING,
+            currentProgress = 1,
+            type = postMedia.type
+        )
+        updateList(pm)
     }
 
     private fun updateMediaUploadStatus(
@@ -645,6 +663,7 @@ class AmityPostCreationPageViewModel : AmityBaseViewModel() {
                 _selectedMediaFiles.value = mediaMap.values.toList()
             }
         }
+        checkAllMediaUploadedSuccessfully()
     }
 }
 
@@ -672,4 +691,5 @@ sealed class AmityPostCreationEvent {
     object Updating : AmityPostCreationEvent()
     object Failed : AmityPostCreationEvent()
     object Success : AmityPostCreationEvent()
+    object Pending : AmityPostCreationEvent()
 }

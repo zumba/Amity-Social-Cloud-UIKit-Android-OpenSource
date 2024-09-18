@@ -26,20 +26,21 @@ import com.amity.socialcloud.uikit.common.ui.theme.AmityTheme
 import com.amity.socialcloud.uikit.common.utils.getIcon
 import com.amity.socialcloud.uikit.common.utils.getText
 import com.amity.socialcloud.uikit.community.compose.AmitySocialBehaviorHelper
-import com.amity.socialcloud.uikit.community.compose.socialhome.AmitySocialHomeTabItem
+import com.amity.socialcloud.uikit.community.compose.socialhome.AmitySocialHomePageTab
 import com.amity.socialcloud.uikit.community.compose.socialhome.elements.AmitySocialHomeNavigationButton
 
 @Composable
 fun AmitySocialHomeTopNavigationComponent(
     modifier: Modifier = Modifier,
-    pageScope: AmityComposePageScope,
-    selectedTab: AmitySocialHomeTabItem,
+    pageScope: AmityComposePageScope? = null,
+    selectedTab: AmitySocialHomePageTab,
+    searchButtonAction: () -> Unit,
 ) {
     val context = LocalContext.current
-    val behavior = remember {
-        AmitySocialBehaviorHelper.socialHomePageBehavior
-    }
 
+    val behavior by lazy {
+        AmitySocialBehaviorHelper.socialHomeTopNavigationComponentBehavior
+    }
     AmityBaseComponent(
         pageScope = pageScope,
         componentId = "top_navigation",
@@ -68,31 +69,27 @@ fun AmitySocialHomeTopNavigationComponent(
             Row(
                 modifier = modifier.align(Alignment.CenterEnd)
             ) {
-                AmityBaseElement(
-                    pageScope = pageScope,
-                    componentScope = getComponentScope(),
-                    elementId = "global_search_button"
-                ) {
-                    AmitySocialHomeNavigationButton(
-                        icon = getConfig().getIcon(),
-                        background = AmityTheme.colors.baseShade4,
-                        iconSize = 20.dp,
-                        modifier = modifier
-                            .size(32.dp)
-                            .testTag(getAccessibilityId()),
-                        onClick = {
-                            when (selectedTab) {
-                                AmitySocialHomeTabItem.NEWSFEED ->
-                                    behavior.goToGlobalSearchPage(context)
-
-                                AmitySocialHomeTabItem.EXPLORE ->
-                                    behavior.goToGlobalSearchPage(context)
-
-                                AmitySocialHomeTabItem.MY_COMMUNITIES ->
-                                    behavior.goToMyCommunitiesSearchPage(context)
-                            }
+                when (selectedTab) {
+                    AmitySocialHomePageTab.NEWSFEED,
+                    AmitySocialHomePageTab.MY_COMMUNITIES -> {
+                        AmityBaseElement(
+                            pageScope = pageScope,
+                            componentScope = getComponentScope(),
+                            elementId = "global_search_button"
+                        ) {
+                            AmitySocialHomeNavigationButton(
+                                icon = getConfig().getIcon(),
+                                background = AmityTheme.colors.baseShade4,
+                                iconSize = 20.dp,
+                                modifier = modifier
+                                    .size(32.dp)
+                                    .testTag(getAccessibilityId()),
+                                onClick = searchButtonAction
+                            )
                         }
-                    )
+                    }
+
+                    AmitySocialHomePageTab.EXPLORE -> {}
                 }
 
                 Spacer(modifier = modifier.width(10.dp))
@@ -111,7 +108,21 @@ fun AmitySocialHomeTopNavigationComponent(
                             .size(32.dp)
                             .testTag(getAccessibilityId()),
                         onClick = {
-                            expanded = true
+                            when (selectedTab) {
+                                AmitySocialHomePageTab.NEWSFEED -> {
+                                    expanded = true
+                                }
+
+                                AmitySocialHomePageTab.MY_COMMUNITIES -> {
+                                    behavior.goToCreateCommunityPage(
+                                        AmitySocialHomeTopNavigationComponentBehavior.Context(
+                                            componentContext = context,
+                                        )
+                                    )
+                                }
+
+                                AmitySocialHomePageTab.EXPLORE -> {}
+                            }
                         },
                     )
                 }

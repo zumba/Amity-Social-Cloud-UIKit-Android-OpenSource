@@ -57,7 +57,7 @@ class AmityViewStoryPageViewModel : AmityBaseViewModel() {
     ): Flow<PagingData<AmityListItem>> {
         val injector = AmityAdInjector<AmityStory>(
             AmityAdPlacement.STORY,
-            community?.getCommunityId()
+            targetId.takeIf { targetType == AmityStory.TargetType.COMMUNITY }
         )
 
         return AmitySocialClient.newStoryRepository()
@@ -68,7 +68,7 @@ class AmityViewStoryPageViewModel : AmityBaseViewModel() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .onBackpressureBuffer()
-            .throttleLatest(2000, TimeUnit.MILLISECONDS)
+            .throttleLatest(800, TimeUnit.MILLISECONDS)
             .map {
                 injector.inject(it)
             }
@@ -194,6 +194,7 @@ class AmityViewStoryPageViewModel : AmityBaseViewModel() {
             .membership(communityId)
             .getMembers()
             .roles(listOf(AmityConstants.MODERATOR_ROLE, AmityConstants.COMMUNITY_MODERATOR_ROLE))
+            .includeDeleted(false)
             .build()
             .query()
             .subscribeOn(Schedulers.io())

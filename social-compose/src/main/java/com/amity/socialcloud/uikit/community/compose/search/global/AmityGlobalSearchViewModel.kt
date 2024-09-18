@@ -1,23 +1,25 @@
 package com.amity.socialcloud.uikit.community.compose.search.global
 
 import androidx.lifecycle.viewModelScope
-import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.amity.socialcloud.sdk.api.core.AmityCoreClient
+import com.amity.socialcloud.sdk.api.core.user.search.AmityUserSortOption
 import com.amity.socialcloud.sdk.api.social.AmitySocialClient
 import com.amity.socialcloud.sdk.helper.core.coroutines.asFlow
 import com.amity.socialcloud.sdk.model.core.user.AmityUser
 import com.amity.socialcloud.sdk.model.social.community.AmityCommunity
 import com.amity.socialcloud.sdk.model.social.community.AmityCommunityFilter
 import com.amity.socialcloud.uikit.common.base.AmityBaseViewModel
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
 import java.util.concurrent.TimeUnit
 
-class AmitySocialGlobalSearchPageViewModel : AmityBaseViewModel() {
+class AmityGlobalSearchViewModel : AmityBaseViewModel() {
 
     private val _keyword by lazy {
         MutableStateFlow("")
@@ -69,6 +71,9 @@ class AmitySocialGlobalSearchPageViewModel : AmityBaseViewModel() {
             }
             .build()
             .query()
+            .throttleLatest(300, TimeUnit.MILLISECONDS)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
             .asFlow()
             .cachedIn(viewModelScope)
             .catch {}
@@ -77,9 +82,12 @@ class AmitySocialGlobalSearchPageViewModel : AmityBaseViewModel() {
     fun searchUsers(): Flow<PagingData<AmityUser>> {
         return AmityCoreClient.newUserRepository()
             .searchUsers(_keyword.value)
+            .sortBy(AmityUserSortOption.DISPLAYNAME)
             .build()
             .query()
-            .debounce(300, TimeUnit.MILLISECONDS)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .throttleLatest(300, TimeUnit.MILLISECONDS)
             .asFlow()
             .cachedIn(viewModelScope)
             .catch {}
@@ -92,16 +100,14 @@ class AmitySocialGlobalSearchPageViewModel : AmityBaseViewModel() {
 
         companion object {
             fun from(
-                loadState: CombinedLoadStates,
+                loadState: LoadState,
                 itemCount: Int,
             ): CommunityListState {
-                return if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
+                return if (loadState is LoadState.Loading && itemCount == 0) {
                     LOADING
-                } else if (
-                    loadState.refresh is LoadState.NotLoading &&
-                    loadState.append is LoadState.NotLoading &&
-                    itemCount == 0
-                ) {
+                } else if (loadState is LoadState.NotLoading && itemCount == 0) {
+                    EMPTY
+                } else if (loadState is LoadState.Error && itemCount == 0) {
                     EMPTY
                 } else {
                     SUCCESS
@@ -117,16 +123,14 @@ class AmitySocialGlobalSearchPageViewModel : AmityBaseViewModel() {
 
         companion object {
             fun from(
-                loadState: CombinedLoadStates,
+                loadState: LoadState,
                 itemCount: Int,
             ): UserListState {
-                return if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
+                return if (loadState is LoadState.Loading && itemCount == 0) {
                     LOADING
-                } else if (
-                    loadState.refresh is LoadState.NotLoading &&
-                    loadState.append is LoadState.NotLoading &&
-                    itemCount == 0
-                ) {
+                } else if (loadState is LoadState.NotLoading && itemCount == 0) {
+                    EMPTY
+                } else if (loadState is LoadState.Error && itemCount == 0) {
                     EMPTY
                 } else {
                     SUCCESS

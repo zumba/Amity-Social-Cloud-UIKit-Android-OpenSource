@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.amity.socialcloud.sdk.model.social.comment.AmityComment
 import com.amity.socialcloud.sdk.model.social.comment.AmityCommentReferenceType
+import com.amity.socialcloud.sdk.model.social.post.AmityPost
 import com.amity.socialcloud.uikit.common.ui.base.AmityBaseComponent
 import com.amity.socialcloud.uikit.common.ui.base.AmityBaseElement
 import com.amity.socialcloud.uikit.common.ui.base.AmityBasePage
@@ -40,13 +41,17 @@ import com.amity.socialcloud.uikit.common.utils.getIcon
 import com.amity.socialcloud.uikit.community.compose.comment.amityCommentListComponent
 import com.amity.socialcloud.uikit.community.compose.comment.create.AmityCommentComposerBar
 import com.amity.socialcloud.uikit.community.compose.post.detail.components.AmityPostContentComponent
+import com.amity.socialcloud.uikit.community.compose.post.detail.components.AmityPostContentComponentStyle
 import com.amity.socialcloud.uikit.community.compose.post.detail.menu.AmityPostMenuSheetUIState
 import com.amity.socialcloud.uikit.community.compose.post.detail.menu.AmityPostMenuViewModel
 
 @Composable
 fun AmityPostDetailPage(
     modifier: Modifier = Modifier,
-    postId: String
+    id: String,
+    style: AmityPostContentComponentStyle,
+    category: AmityPostCategory = AmityPostCategory.GENERAL,
+    hideTarget: Boolean,
 ) {
     val context = LocalContext.current
 
@@ -58,19 +63,15 @@ fun AmityPostDetailPage(
     val sheetViewModel =
         viewModel<AmityPostMenuViewModel>(viewModelStoreOwner = viewModelStoreOwner)
 
-    val post by remember(postId) {
-        viewModel.getPost(postId)
+    val post by remember(id) {
+        viewModel.getPost(id)
     }.collectAsState(initial = null)
 
-    val currentUser = remember(viewModel) {
+    val currentUser by remember(viewModel) {
         viewModel.getCurrentUser()
     }.subscribeAsState(null)
 
     var replyComment by remember { mutableStateOf<AmityComment?>(null) }
-
-//    LaunchedEffect(post?.getPostId()) {
-//        post?.analytics()?.markAsViewed()
-//    }
 
     AmityBasePage(pageId = "post_detail_page") {
         AmityBaseComponent(
@@ -80,9 +81,10 @@ fun AmityPostDetailPage(
             val commentListComposables = amityCommentListComponent(
                 modifier = modifier,
                 componentScope = getComponentScope(),
-                referenceId = postId,
+                referenceId = id,
                 referenceType = AmityCommentReferenceType.POST,
-                shouldAllowInteraction = true,
+                community = (post?.getTarget() as? AmityPost.Target.COMMUNITY)?.getCommunity(),
+                shouldAllowInteraction = !sheetViewModel.isNotMember(post),
                 onReply = {
                     replyComment = it
                 }
@@ -141,7 +143,6 @@ fun AmityPostDetailPage(
                         )
                     }
                 }
-
                 LazyColumn(
                     verticalArrangement = Arrangement.Top,
                     modifier = modifier.weight(1f)
@@ -149,8 +150,11 @@ fun AmityPostDetailPage(
                     item {
                         AmityPostContentComponent(
                             modifier = modifier,
-                            post = post,
-                            isPostDetailPage = true,
+                            post = post ?: return@item,
+                            style = style,
+                            category = category,
+                            hideTarget = hideTarget,
+                            hideMenuButton = true,
                         )
 
                         HorizontalDivider(
@@ -173,13 +177,29 @@ fun AmityPostDetailPage(
 
                 AmityCommentComposerBar(
                     componentScope = getComponentScope(),
-                    referenceId = postId,
+                    referenceId = id,
                     referenceType = AmityCommentReferenceType.POST,
-                    avatarUrl = currentUser.value?.getAvatar()?.getUrl(),
+                    currentUser = currentUser,
                     replyComment = replyComment,
                 ) {
                     replyComment = null
                 }
+            }
+        }
+    }
+}
+
+enum class AmityPostCategory {
+    GENERAL,
+    PIN,
+    ANNOUNCEMENT;
+
+    companion object {
+        fun fromString(category: String): AmityPostCategory {
+            return when (category) {
+                "ANNOUNCEMENT" -> ANNOUNCEMENT
+                "PIN" -> PIN
+                else -> GENERAL
             }
         }
     }

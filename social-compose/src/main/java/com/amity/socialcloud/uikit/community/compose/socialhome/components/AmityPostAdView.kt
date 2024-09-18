@@ -69,8 +69,9 @@ fun AmityPostAdView(
 
     Column(
         modifier = modifier
+            .background(AmityTheme.colors.background)
             .padding(top = 4.dp)
-            .isVisible(threshold = 70) { isVisible = it }
+            .isVisible { isVisible = it }
     ) {
         Box(
             modifier = modifier.fillMaxWidth()
@@ -83,7 +84,8 @@ fun AmityPostAdView(
                     .padding(start = 12.dp)
             ) {
                 AmityAvatarView(
-                    avatarUrl = ad.getAdvertiser()?.getAvatar()?.getUrl(AmityImage.Size.FULL),
+                    image = ad.getAdvertiser()?.getAvatar(),
+                    placeholder = R.drawable.amity_ic_default_advertiser,
                     modifier = modifier.padding(vertical = 8.dp)
                 )
 
@@ -91,6 +93,7 @@ fun AmityPostAdView(
                     Text(
                         text = ad.getAdvertiser()?.getName() ?: "",
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         style = AmityTheme.typography.body.copy(
                             fontWeight = FontWeight.SemiBold
                         )

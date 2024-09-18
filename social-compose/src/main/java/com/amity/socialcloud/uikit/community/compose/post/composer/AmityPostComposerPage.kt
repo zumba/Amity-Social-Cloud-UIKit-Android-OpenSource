@@ -75,13 +75,14 @@ fun AmityPostComposerPage(
     var showMediaCameraSelectionSheet by remember { mutableStateOf(false) }
     var showMaxUploadLimitReachedDialog by remember { mutableStateOf(false) }
     var showDiscardPostDialog by remember { mutableStateOf(false) }
+    var showPendingPostDialog by remember { mutableStateOf(false) }
     var isCameraPermissionGranted by remember { mutableStateOf(false) }
 
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
     }
     val viewModel =
-        viewModel<AmityPostCreationPageViewModel>(viewModelStoreOwner = viewModelStoreOwner)
+        viewModel<AmityPostComposerPageViewModel>(viewModelStoreOwner = viewModelStoreOwner)
 
     LaunchedEffect(options) {
         viewModel.setComposerOptions(options)
@@ -110,13 +111,14 @@ fun AmityPostComposerPage(
     val postAttachmentPickerEvent by viewModel.postAttachmentPickerEvent.collectAsState()
     val postCreationEvent by viewModel.postCreationEvent.collectAsState()
     val selectedMediaFiles by viewModel.selectedMediaFiles.collectAsState()
+    val isAllMediaSuccessfullyUploaded by viewModel.isAllMediaSuccessfullyUploaded.collectAsState()
 
     val shouldAllowToPost by remember(isInEditMode) {
         derivedStateOf {
             if (isInEditMode) {
                 localPostText != postText || post?.getChildren()?.size != selectedMediaFiles.size
             } else {
-                localPostText.isNotEmpty() || selectedMediaFiles.isNotEmpty()
+                localPostText.isNotEmpty() || isAllMediaSuccessfullyUploaded
             }
         }
     }
@@ -197,7 +199,7 @@ fun AmityPostComposerPage(
                     if (imageFile == null) {
                         context.showToast("Failed to create image file")
                     } else {
-                        capturedMediaUri = AmityCameraUtil.createVideoUri(context, imageFile)
+                        capturedMediaUri = AmityCameraUtil.createPhotoUri(context, imageFile)
                         imageCaptureLauncher.launch(capturedMediaUri)
                     }
                 } else {
@@ -289,10 +291,12 @@ fun AmityPostComposerPage(
 
     if (showDiscardPostDialog) {
         AmityAlertDialog(
-            dialogTitle = context.getString(R.string.amity_discard_post_title),
-            dialogText = context.getString(R.string.amity_discard_post_message),
-            confirmText = context.getString(R.string.amity_discard),
-            dismissText = context.getString(R.string.amity_cancel),
+            dialogTitle = "Discard this post?",
+            dialogText = "The post will be permanently deleted. It cannot be undone.",
+            confirmText = "Discard",
+            dismissText = "Keep editing",
+            confirmTextColor = AmityTheme.colors.alert,
+            dismissTextColor = AmityTheme.colors.highlight,
             onConfirmation = {
                 context.closePageWithResult(Activity.RESULT_CANCELED)
             },
@@ -301,6 +305,18 @@ fun AmityPostComposerPage(
             }
         )
     }
+
+    if (showPendingPostDialog) {
+        AmityAlertDialog(
+            dialogTitle = "",
+            dialogText = "Your post has been submitted to the pending list. It will be reviewed by community moderator.",
+            dismissText = "OK",
+        ) {
+            showPendingPostDialog = false
+            context.closePageWithResult(Activity.RESULT_OK)
+        }
+    }
+
     BackHandler {
         showDiscardPostDialog = true
     }
@@ -322,10 +338,17 @@ fun AmityPostComposerPage(
                     context.closePageWithResult(Activity.RESULT_OK)
                 }
 
+                AmityPostCreationEvent.Pending -> {
+                    showPendingPostDialog = true
+                }
+
                 AmityPostCreationEvent.Failed -> {
+                    val text =
+                        "Failed to " + if (isInEditMode) "edit" else "create" + " post. Please try again."
                     getPageScope().showSnackbar(
-                        "Failed to create post",
-                        R.drawable.amity_ic_warning
+                        message = text,
+                        drawableRes = R.drawable.amity_ic_warning,
+                        additionalHeight = if (isInEditMode) 0 else 52,
                     )
                 }
 

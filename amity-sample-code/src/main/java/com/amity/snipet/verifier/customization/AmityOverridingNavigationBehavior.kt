@@ -31,7 +31,7 @@ class AmityOverridingNavigationBehavior {
         }
     }
 
-    // Call this function in Application class to setup custom behaviour class in UIKit
+    // Call this function in AmityUIKit4Manager class to setup custom behaviour class in UIKit
     fun setCustomBehavior() {
         val customStoryTabComponentBehaviour = CustomStoryTabComponentBehaviour()
         AmityUIKit4Manager.behavior.storyTabComponentBehavior = customStoryTabComponentBehaviour

@@ -21,16 +21,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.amity.socialcloud.sdk.model.social.comment.AmityComment
 import com.amity.socialcloud.sdk.model.social.comment.AmityCommentReferenceType
+import com.amity.socialcloud.uikit.common.ui.elements.AmityAlertDialog
+import com.amity.socialcloud.uikit.common.ui.elements.AmityUserAvatarView
 import com.amity.socialcloud.uikit.common.ui.scope.AmityComposeComponentScope
 import com.amity.socialcloud.uikit.common.ui.theme.AmityTheme
 import com.amity.socialcloud.uikit.common.utils.clickableWithoutRipple
 import com.amity.socialcloud.uikit.community.compose.R
-import com.amity.socialcloud.uikit.community.compose.comment.elements.AmityCommentAvatarView
-import com.amity.socialcloud.uikit.community.compose.comment.query.components.AmityCommentActionsBottomSheet
 import com.amity.socialcloud.uikit.community.compose.comment.query.components.AmityCommentContentContainer
 import com.amity.socialcloud.uikit.community.compose.comment.query.components.AmityCommentEngagementBar
 import com.amity.socialcloud.uikit.community.compose.comment.query.components.AmityEditCommentContainer
 import com.amity.socialcloud.uikit.community.compose.comment.query.components.AmityReplyCommentContainer
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlin.math.max
 
 @Composable
@@ -47,7 +48,7 @@ fun AmitySingleCommentView(
     onReply: (String) -> Unit,
     onEdit: (String?) -> Unit,
 ) {
-    var showCommentActionSheet by remember { mutableStateOf(false) }
+    var showDeleteBannedWordCommentDialog by remember { mutableStateOf(false) }
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -62,9 +63,8 @@ fun AmitySingleCommentView(
             )
             .testTag("comment_list/*")
     ) {
-        AmityCommentAvatarView(
-            size = 32.dp,
-            avatarUrl = comment.getCreator()?.getAvatar()?.getUrl() ?: "",
+        AmityUserAvatarView(
+            user = comment.getCreator(),
             modifier = modifier.testTag("comment_list/comment_bubble_avatar")
         )
 
@@ -101,7 +101,7 @@ fun AmitySingleCommentView(
                                 .size(18.dp)
                                 .align(Alignment.Bottom)
                                 .clickableWithoutRipple {
-                                    showCommentActionSheet = true
+                                    showDeleteBannedWordCommentDialog = true
                                 }
                         )
                     }
@@ -146,17 +146,19 @@ fun AmitySingleCommentView(
         }
     }
 
-    AmityCommentActionsBottomSheet(
-        modifier = modifier,
-        componentScope = componentScope,
-        commentId = comment.getCommentId(),
-        shouldShow = showCommentActionSheet,
-        isReplyComment = isReplyComment,
-        isCommentCreatedByMe = true,
-        isFlaggedByMe = comment.isFlaggedByMe(),
-        isFailed = comment.getState() == AmityComment.State.FAILED,
-        onEdit = {},
-    ) {
-        showCommentActionSheet = false
+    if (showDeleteBannedWordCommentDialog) {
+        AmityAlertDialog(
+            dialogTitle = "",
+            dialogText = "Your comment was not post",
+            confirmText = "Delete",
+            dismissText = "Cancel",
+            confirmTextColor = AmityTheme.colors.alert,
+            dismissTextColor = AmityTheme.colors.highlight,
+            onConfirmation = {
+                comment.delete().subscribeOn(Schedulers.io()).subscribe()
+                showDeleteBannedWordCommentDialog = false
+            },
+            onDismissRequest = { showDeleteBannedWordCommentDialog = false }
+        )
     }
 }

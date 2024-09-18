@@ -20,15 +20,17 @@ import com.amity.socialcloud.uikit.common.ui.theme.AmityTheme
 import com.amity.socialcloud.uikit.common.utils.shimmerBackground
 
 @Composable
-fun AmityUserListShimmer() {
-    Column {
+fun AmityUserListShimmer(
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
         repeat(12) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .padding(16.dp)
+                    .padding(vertical = 16.dp)
             ) {
                 Box(
                     modifier = Modifier

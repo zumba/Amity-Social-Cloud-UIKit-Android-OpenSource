@@ -52,10 +52,11 @@ class AmityCommentTrayComponentViewModel : AmityBaseViewModel() {
     fun getComments(
         referenceId: String,
         referenceType: AmityCommentReferenceType,
+        communityId: String?,
     ): Flow<PagingData<AmityListItem>> {
         val injector = AmityAdInjector<AmityComment>(
             AmityAdPlacement.COMMENT,
-            community?.getCommunityId()
+            communityId,
         )
         return getCommentQuery(
             referenceId = referenceId,
@@ -64,7 +65,7 @@ class AmityCommentTrayComponentViewModel : AmityBaseViewModel() {
             .build()
             .query()
             .onBackpressureBuffer()
-            .throttleLatest(2000, TimeUnit.MILLISECONDS)
+            .throttleLatest(800, TimeUnit.MILLISECONDS)
             .map {
                 injector.inject(it)
             }
