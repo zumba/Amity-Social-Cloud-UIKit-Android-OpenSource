@@ -31,6 +31,7 @@ import com.amity.socialcloud.uikit.community.mycommunity.adapter.AmityMyCommunit
 import com.amity.socialcloud.uikit.community.mycommunity.listener.AmityMyCommunityItemClickListener
 import com.amity.socialcloud.uikit.community.mycommunity.viewmodel.AmityMyCommunityListViewModel
 import com.amity.socialcloud.uikit.community.ui.view.AmityCommunityCreatorActivity
+import com.amity.socialcloud.uikit.social.AmitySocialUISettings
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 
@@ -191,11 +192,15 @@ class AmityMyCommunityFragment : AmityBaseFragment(),
 
     private fun navigateToCommunityDetails(ekoCommunity: AmityCommunity?) {
         if (ekoCommunity != null) {
+            /*
+            // open V4 version of Community Page, because it supports pinned posts
             val detailIntent = AmityCommunityPageActivity.newIntent(
                 requireContext(),
                 ekoCommunity
             )
             startActivity(detailIntent)
+            */
+            AmitySocialUISettings.globalCommunityClickListener.onClickCommunity(this, ekoCommunity)
         }
 
     }
