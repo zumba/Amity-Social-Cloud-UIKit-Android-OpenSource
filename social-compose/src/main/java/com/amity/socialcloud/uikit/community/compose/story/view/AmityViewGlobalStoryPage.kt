@@ -87,7 +87,6 @@ fun AmityViewGlobalStoryPage(
         if (selectedTarget.first >= 0) {
             HorizontalPager(
                 state = targetPagerState,
-                beyondBoundsPageCount = 2,
                 key = {
                     targets[it].getTargetId()
                 },
