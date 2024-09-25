@@ -107,7 +107,8 @@ fun AmityCommunityProfileActionsContainer(
 					)
 				)
 			}
-
+			/*
+			// Story button hidden for now, as iOS is using version 3.*
 			AmityBottomSheetActionItem(
 				icon = R.drawable.amity_ic_create_story_social,
 				text = "Story",
@@ -122,7 +123,7 @@ fun AmityCommunityProfileActionsContainer(
 					)
 				)
 			}
-			
+			*/
 		}
 	}
 }

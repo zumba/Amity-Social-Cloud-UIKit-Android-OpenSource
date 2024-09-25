@@ -14,7 +14,11 @@ open class AmityMediaAttachmentViewModel : AmityBaseViewModel() {
     val postAttachmentPickerEvent get() = _postAttachmentPickerEvent
 
     private val _postAttachmentAllowedPickerType by lazy {
-        MutableStateFlow<AmityPostAttachmentAllowedPickerType>(AmityPostAttachmentAllowedPickerType.All)
+        MutableStateFlow<AmityPostAttachmentAllowedPickerType>(
+            // adding video attachments disabled temporarily due to lack of HEVC support
+            // AmityPostAttachmentAllowedPickerType.All
+            AmityPostAttachmentAllowedPickerType.Image
+        )
     }
     val postAttachmentAllowedPickerType get() = _postAttachmentAllowedPickerType
 

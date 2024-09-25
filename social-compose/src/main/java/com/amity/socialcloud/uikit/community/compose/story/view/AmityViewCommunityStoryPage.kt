@@ -333,7 +333,6 @@ fun AmityViewCommunityStoryPage(
         ) {
             HorizontalPager(
                 state = storyPagerState,
-                beyondBoundsPageCount = 3,
                 userScrollEnabled = false,
                 key = {
                     (stories[it] as? AmityListItem.StoryItem)?.story?.getStoryId() ?: it

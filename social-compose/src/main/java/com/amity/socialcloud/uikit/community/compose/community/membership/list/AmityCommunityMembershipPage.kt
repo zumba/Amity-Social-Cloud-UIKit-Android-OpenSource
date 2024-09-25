@@ -103,6 +103,8 @@ fun AmityCommunityMembershipPage(
                     context.closePageWithResult(Activity.RESULT_CANCELED)
                 }
             ) {
+                /*
+                // Disabled adding members to communities, because users can't create their own communities
                 Icon(
                     painter = painterResource(R.drawable.amity_ic_add),
                     contentDescription = "Close",
@@ -117,6 +119,7 @@ fun AmityCommunityMembershipPage(
                             )
                         }
                 )
+                */
             }
 
             AmityTabRow(tabs = tabs, selectedIndex = selectedTabIndex) {
