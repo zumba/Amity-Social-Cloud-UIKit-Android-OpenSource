@@ -37,6 +37,9 @@ android {
 
 dependencies {
     api project(path: ':amity-uikit')
+    // Added :chat module manually as it is unused in base amity-uikit module
+    implementation project(path: ':chat')
+
     implementation "androidx.media3:media3-common:$media3Version"
     implementation 'androidx.activity:activity-compose:1.6.0'
 
