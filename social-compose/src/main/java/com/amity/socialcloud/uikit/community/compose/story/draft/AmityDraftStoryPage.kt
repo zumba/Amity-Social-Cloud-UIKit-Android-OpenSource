@@ -435,7 +435,6 @@ fun AmityDraftStoryPage(
                         },
                         sheetState = sheetState,
                         containerColor = AmityTheme.colors.background,
-                        windowInsets = WindowInsets(top = 54.dp),
                     ) {
                         AmityStoryHyperlinkComponent(
                             defaultUrlText = hyperlinkUrlText,

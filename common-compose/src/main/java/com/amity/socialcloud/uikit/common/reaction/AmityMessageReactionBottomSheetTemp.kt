@@ -61,7 +61,6 @@ fun AmityMessageReactionBottomSheetTemp(
             },
             sheetState = sheetState,
             containerColor = AmityTheme.colors.background,
-            windowInsets = WindowInsets(top = 54.dp),
             modifier = modifier
                 .semantics {
                     testTagsAsResourceId = true

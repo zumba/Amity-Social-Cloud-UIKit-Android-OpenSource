@@ -55,7 +55,6 @@ fun AmityCommunityMembershipSheet(
             },
             sheetState = sheetState,
             containerColor = AmityTheme.colors.background,
-            windowInsets = WindowInsets(top = 54.dp),
         ) {
             when (sheetUIState) {
                 is AmityCommunityMembershipSheetUIState.OpenSheet -> {

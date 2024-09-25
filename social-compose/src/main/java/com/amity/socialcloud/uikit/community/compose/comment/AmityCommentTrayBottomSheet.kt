@@ -27,7 +27,6 @@ fun AmityStoryCommentBottomSheet(
         onDismissRequest = onClose,
         sheetState = sheetState,
         containerColor = AmityTheme.colors.background,
-        windowInsets = WindowInsets(top = 54.dp),
         modifier = modifier,
     ) {
         AmityCommentTrayComponent(
