@@ -37,7 +37,6 @@ fun AmityMediaImageSelectionSheet(
         onDismissRequest = { onSelect(null) },
         sheetState = sheetState,
         containerColor = AmityTheme.colors.background,
-        windowInsets = WindowInsets(bottom = 0.dp),
         modifier = modifier,
     ) {
         Column(

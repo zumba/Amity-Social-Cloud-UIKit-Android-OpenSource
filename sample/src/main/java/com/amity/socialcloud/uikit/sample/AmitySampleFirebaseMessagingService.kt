@@ -1,4 +1,5 @@
 package com.amity.socialcloud.uikit.sample
+/*
 
 import android.util.Log
 import com.amity.socialcloud.sdk.push.AmityFcm
@@ -41,4 +42,4 @@ class AmitySampleFirebaseMessagingService : FirebaseMessagingService() {
             }
             .subscribe()
     }
-}
+}*/
