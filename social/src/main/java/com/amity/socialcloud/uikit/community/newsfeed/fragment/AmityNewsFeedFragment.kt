@@ -14,7 +14,9 @@ import com.amity.socialcloud.uikit.common.common.setSafeOnClickListener
 import com.amity.socialcloud.uikit.common.common.views.dialog.bottomsheet.AmityBottomSheetDialog
 import com.amity.socialcloud.uikit.common.common.views.dialog.bottomsheet.BottomSheetMenuItem
 import com.amity.socialcloud.uikit.community.R
+import com.amity.socialcloud.uikit.community.compose.AmitySocialBehaviorHelper
 import com.amity.socialcloud.uikit.community.compose.story.target.global.AmityStoryGlobalFeedFragment
+import com.amity.socialcloud.uikit.community.compose.target.AmityPostTargetSelectionPageType
 import com.amity.socialcloud.uikit.community.databinding.AmityFragmentNewsFeedBinding
 import com.amity.socialcloud.uikit.community.newsfeed.activity.AmityTargetSelectionPageActivity
 import com.amity.socialcloud.uikit.community.newsfeed.activity.AmityTargetSelectionPageType
@@ -35,6 +37,9 @@ class AmityNewsFeedFragment : AmityBaseFragment(),
         ) {
             refreshFeed()
         }
+    private val behavior by lazy {
+        AmitySocialBehaviorHelper.createPostMenuComponentBehavior
+    }
 
     companion object {
         fun newInstance(): Builder {
@@ -103,7 +108,12 @@ class AmityNewsFeedFragment : AmityBaseFragment(),
                     iconResId = R.drawable.amity_ic_post_create,
                     titleResId = R.string.amity_post,
                     action = {
-                        creationTargetSelection.launch(AmityTargetSelectionPageType.POST)
+                        // creationTargetSelection.launch(AmityTargetSelectionPageType.POST)
+                        // use V4 version to not use READ_MEDIA_* permissions for attachments
+                        behavior.goToSelectPostTargetPage(
+                            context = requireContext(),
+                            type = AmityPostTargetSelectionPageType.POST
+                        )
                         bottomSheet.dismiss()
                     }
                 ),
