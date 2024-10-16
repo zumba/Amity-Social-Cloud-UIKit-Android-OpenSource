@@ -10,6 +10,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
@@ -26,6 +27,8 @@ import com.amity.socialcloud.uikit.common.common.views.dialog.bottomsheet.AmityB
 import com.amity.socialcloud.uikit.common.common.views.dialog.bottomsheet.BottomSheetMenuItem
 import com.amity.socialcloud.uikit.common.utils.AmityAlertDialogUtil
 import com.amity.socialcloud.uikit.community.R
+import com.amity.socialcloud.uikit.community.compose.AmitySocialBehaviorHelper
+import com.amity.socialcloud.uikit.community.compose.post.composer.AmityPostTargetType
 import com.amity.socialcloud.uikit.community.databinding.AmityFragmentUserProfilePageBinding
 import com.amity.socialcloud.uikit.community.followers.AmityUserFollowersActivity
 import com.amity.socialcloud.uikit.community.followrequest.AmityFollowRequestsActivity
@@ -80,6 +83,12 @@ class AmityUserProfilePageFragment : AmityBaseFragment(),
 
     private val createPollPost =
         registerForActivityResult(AmityPollPostCreatorActivity.AmityPollCreatorActivityContract()) {
+        }
+    private val behavior by lazy {
+        AmitySocialBehaviorHelper.postTargetSelectionPageBehavior
+    }
+    private val createGenericPostV4Launcher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         }
 
     companion object {
@@ -163,7 +172,13 @@ class AmityUserProfilePageFragment : AmityBaseFragment(),
                     iconResId = R.drawable.amity_ic_post_create,
                     titleResId = R.string.amity_post,
                     action = {
-                        createGenericPost.launch(null)
+                        // createGenericPost.launch(null)
+                        // use V4 version to not use READ_MEDIA_* permissions for attachments
+                        behavior.goToPostComposerPage(
+                            context = requireContext(),
+                            launcher = createGenericPostV4Launcher,
+                            targetType = AmityPostTargetType.USER,
+                        )
                         bottomSheet.dismiss()
                     }
                 ),
