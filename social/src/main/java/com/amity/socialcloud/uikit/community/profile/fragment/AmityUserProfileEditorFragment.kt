@@ -62,13 +62,19 @@ class AmityUserProfileEditorFragment : AmityPickerFragment() {
         super.onViewCreated(view, savedInstanceState)
         initToolBar()
         getUserDetails()
-        binding.avatarView.setOnClickListener {
+        // Disable updating the avatar
+        /* binding.avatarView.setOnClickListener {
             showOptionTakePhoto()
-        }
+        }*/
+        binding.ivCamera.visibility = View.GONE
 
         observeProfileUpdate()
 
         binding.etDisplayName.filters = arrayOf<InputFilter>(LengthFilter(viewModel.userNameMaxTextLength))
+        // Disable updating the Display Name
+        binding.etDisplayName.isEnabled = false
+        binding.tvUserNameCount.visibility = View.GONE
+
         binding.etAbout.filters = arrayOf<InputFilter>(LengthFilter(viewModel.aboutMaxTextLength))
     }
 

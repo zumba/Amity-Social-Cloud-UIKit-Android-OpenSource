@@ -62,8 +62,7 @@
             android:layout_marginEnd="@dimen/amity_padding_m1"
             android:text="@string/amity_display_name"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/avatarView"
-            app:required="@{true}" />
+            app:layout_constraintTop_toBottomOf="@id/avatarView" />
 
         <TextView
             android:id="@+id/tvUserNameCount"
