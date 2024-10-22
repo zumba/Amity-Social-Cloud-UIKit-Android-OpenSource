@@ -424,35 +424,37 @@ fun AmityCommunitySettingPage(
                 }
             }
 
-            AmityBaseElement(
-                pageScope = getPageScope(),
-                elementId = "leave_community"
-            ) {
-                Text(
-                    text = getConfig().getText(),
-                    style = AmityTheme.typography.body.copy(
-                        color = AmityTheme.colors.alert,
-                        fontWeight = FontWeight.SemiBold,
-                    ),
-                    modifier = modifier
-                        .padding(vertical = 12.dp, horizontal = 8.dp)
-                        .clickableWithoutRipple {
-                            viewModel.updateUIEvent(
-                                if (hasDeletePermission) {
-                                    AmityCommunitySettingUIEvent.ConfirmModeratorLeaveCommunity
-                                } else {
-                                    AmityCommunitySettingUIEvent.ConfirmUserLeaveCommunity
-                                }
-                            )
-                        }
-                )
-            }
+            if (communityVM?.isJoined() == true) {
+                AmityBaseElement(
+                    pageScope = getPageScope(),
+                    elementId = "leave_community"
+                ) {
+                    Text(
+                        text = getConfig().getText(),
+                        style = AmityTheme.typography.body.copy(
+                            color = AmityTheme.colors.alert,
+                            fontWeight = FontWeight.SemiBold,
+                        ),
+                        modifier = modifier
+                            .padding(vertical = 12.dp, horizontal = 8.dp)
+                            .clickableWithoutRipple {
+                                viewModel.updateUIEvent(
+                                    if (hasDeletePermission) {
+                                        AmityCommunitySettingUIEvent.ConfirmModeratorLeaveCommunity
+                                    } else {
+                                        AmityCommunitySettingUIEvent.ConfirmUserLeaveCommunity
+                                    }
+                                )
+                            }
+                    )
+                }
 
-            HorizontalDivider(
-                color = AmityTheme.colors.divider,
-                modifier = modifier.padding(top = 4.dp, bottom = 8.dp)
-            )
-            Spacer(modifier = modifier.height(8.dp))
+                HorizontalDivider(
+                    color = AmityTheme.colors.divider,
+                    modifier = modifier.padding(top = 4.dp, bottom = 8.dp)
+                )
+                Spacer(modifier = modifier.height(8.dp))
+            }
 
             if (hasDeletePermission) {
                 Column(
