@@ -290,7 +290,9 @@ fun AmityCommunitySettingPage(
                         communityNotificationSettings?.isCommentNotificationEnabled() == true ||
                         communityNotificationSettings?.isStoryNotificationEnabled() == true)
 
-            if (isNotificationEnabled) {
+            // notifications enabled in Amity panel, but not yet fully integrated
+            // if (isNotificationEnabled) {
+            if (false) {
                 Box(modifier = modifier.fillMaxWidth()) {
                     AmityBaseElement(
                         pageScope = getPageScope(),
