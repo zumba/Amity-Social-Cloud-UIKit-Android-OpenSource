@@ -146,6 +146,8 @@ fun AmityCommunityProfileTabRow(
                     )
                 }
 
+                /*
+                // adding video attachments disabled due to legal concerns
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = modifier
@@ -180,6 +182,7 @@ fun AmityCommunityProfileTabRow(
                             )
                     )
                 }
+                 */
             }
 
             HorizontalDivider(
