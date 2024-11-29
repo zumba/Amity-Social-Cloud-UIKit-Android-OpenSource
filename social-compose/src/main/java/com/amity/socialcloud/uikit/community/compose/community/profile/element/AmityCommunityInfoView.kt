@@ -46,7 +46,7 @@ fun AmityCommunityInfoView(
 		Row(
 			modifier = Modifier
 				.padding(top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
-			verticalAlignment = Alignment.Bottom,
+			verticalAlignment = Alignment.CenterVertically,
 		) {
 			Text(
 				text = getNumberAbbreveation(community?.getPostCount() ?: 0),
@@ -73,7 +73,9 @@ fun AmityCommunityInfoView(
 				.height(20.dp)
 				.background(color = AmityTheme.colors.baseShade4)
             ) {}
-			Row(modifier = Modifier.clickable {
+			Row(
+				verticalAlignment = Alignment.CenterVertically,
+				modifier = Modifier.clickable {
 				community?.let{
                     behavior.goToMemberListPage(
 						AmityCommunityProfilePageBehavior.Context(

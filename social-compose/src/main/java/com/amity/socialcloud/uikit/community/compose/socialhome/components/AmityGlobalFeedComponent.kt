@@ -15,28 +15,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.amity.socialcloud.sdk.model.social.post.AmityPost
-import com.amity.socialcloud.uikit.common.ad.AmityListItem
 import com.amity.socialcloud.uikit.common.ui.base.AmityBaseComponent
-import com.amity.socialcloud.uikit.common.ui.elements.AmityNewsFeedDivider
 import com.amity.socialcloud.uikit.common.ui.scope.AmityComposePageScope
 import com.amity.socialcloud.uikit.community.compose.AmitySocialBehaviorHelper
+import com.amity.socialcloud.uikit.community.compose.paging.feed.global.amityGlobalFeedLLS
 import com.amity.socialcloud.uikit.community.compose.post.composer.AmityPostComposerHelper
-import com.amity.socialcloud.uikit.community.compose.post.detail.components.AmityPostContentComponent
-import com.amity.socialcloud.uikit.community.compose.post.detail.components.AmityPostContentComponentStyle
-import com.amity.socialcloud.uikit.community.compose.post.detail.components.AmityPostShimmer
 import com.amity.socialcloud.uikit.community.compose.socialhome.AmitySocialHomePageViewModel
-import com.amity.socialcloud.uikit.community.compose.story.target.AmityStoryTabComponent
-import com.amity.socialcloud.uikit.community.compose.story.target.AmityStoryTabComponentType
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AmityGlobalFeedComponent(
     modifier: Modifier = Modifier,
     pageScope: AmityComposePageScope? = null,
+    onExploreRequested: () -> Unit = {},
 ) {
     val context = LocalContext.current
 
@@ -44,16 +37,12 @@ fun AmityGlobalFeedComponent(
         AmitySocialBehaviorHelper.globalFeedComponentBehavior
     }
 
-    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
-        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
-    }
-    val viewModel =
-        viewModel<AmitySocialHomePageViewModel>(viewModelStoreOwner = viewModelStoreOwner)
-    val posts = viewModel.getGlobalFeed().collectAsLazyPagingItems()
+    val viewModel = viewModel<AmitySocialHomePageViewModel>()
+    val posts = remember { viewModel.getGlobalFeed() }.collectAsLazyPagingItems()
+    val pinnedPosts = remember { viewModel.getGlobalPinnedPosts() }.collectAsState(emptyList())
 
     val lazyListState = rememberLazyListState()
     val postListState by viewModel.postListState.collectAsState()
-
 
     val isRefreshing by viewModel.isGlobalFeedRefreshing.collectAsState()
 
@@ -68,7 +57,7 @@ fun AmityGlobalFeedComponent(
 
     AmityBaseComponent(
         pageScope = pageScope,
-        componentId = "global_feed_component"
+        componentId = "global_feed"
     ) {
         Box(
             modifier = Modifier
@@ -84,106 +73,25 @@ fun AmityGlobalFeedComponent(
                     itemCount = posts.itemCount,
                 ).let(viewModel::setPostListState)
 
-                item {
-                    AmityStoryTabComponent(
-                        type = AmityStoryTabComponentType.GlobalFeed
-                    )
-                }
-
-                item {
-                    AmityNewsFeedDivider()
-                }
-
-                items(
-                    count = AmityPostComposerHelper.getCreatedPosts().size,
-                    key = { AmityPostComposerHelper.getCreatedPosts()[it].getPostId() }
-                ) {
-                    val post = AmityPostComposerHelper.getCreatedPosts()[it]
-                    AmityPostContentComponent(
-                        modifier = modifier,
-                        post = post,
-                        style = AmityPostContentComponentStyle.FEED,
-                        hideMenuButton = false,
-                    ) {
+                amityGlobalFeedLLS(
+                    modifier = modifier,
+                    pageScope = pageScope,
+                    globalPosts = posts,
+                    pinnedPosts = pinnedPosts,
+                    postListState = postListState,
+                    onClick = {
                         behavior.goToPostDetailPage(
                             context = context,
-                            id = post.getPostId()
+                            id = it.getPostId()
                         )
+                    },
+                    onCreateCommunityClicked = {
+                        behavior.goToCreateCommunityPage(context)
+                    },
+                    onExploreCommunityClicked = {
+                        onExploreRequested()
                     }
-                    AmityNewsFeedDivider()
-                }
-
-                when (postListState) {
-                    AmitySocialHomePageViewModel.PostListState.SUCCESS -> {
-                        items(
-                            count = posts.itemCount,
-                            key = {
-                                (posts[it] as? AmityListItem.PostItem)?.post?.getPostId() ?: it
-                            }
-                        ) { index ->
-                            when (val data = posts[index]) {
-                                is AmityListItem.PostItem -> {
-                                    val post = data.post
-                                    // TODO: 3/6/24 currently only support text, image, and video post
-                                    when (post.getData()) {
-                                        is AmityPost.Data.TEXT,
-                                        is AmityPost.Data.IMAGE,
-                                        is AmityPost.Data.VIDEO -> {
-                                        }
-
-                                        else -> return@items
-                                    }
-
-                                    AmityPostContentComponent(
-                                        modifier = modifier,
-                                        post = post,
-                                        style = AmityPostContentComponentStyle.FEED,
-                                        hideMenuButton = false,
-                                    ) {
-                                        behavior.goToPostDetailPage(
-                                            context = context,
-                                            id = post.getPostId()
-                                        )
-                                    }
-                                    AmityNewsFeedDivider()
-                                }
-
-                                is AmityListItem.AdItem -> {
-                                    val ad = data.ad
-
-                                    AmityPostAdView(
-                                        ad = ad,
-                                        modifier = modifier
-                                    )
-                                    AmityNewsFeedDivider()
-                                }
-
-                                else -> {}
-                            }
-                        }
-                    }
-
-                    AmitySocialHomePageViewModel.PostListState.LOADING -> {
-                        items(4) {
-                            AmityPostShimmer()
-                            AmityNewsFeedDivider()
-                        }
-                    }
-
-                    AmitySocialHomePageViewModel.PostListState.ERROR,
-                    AmitySocialHomePageViewModel.PostListState.EMPTY -> {
-                        item {
-                            AmityEmptyNewsFeedComponent(
-                                modifier = modifier,
-                                pageScope = pageScope,
-                                onExploreClicked = {},
-                                onCreateClicked = {
-                                    behavior.goToCreateCommunityPage(context)
-                                }
-                            )
-                        }
-                    }
-                }
+                )
             }
 
             PullRefreshIndicator(

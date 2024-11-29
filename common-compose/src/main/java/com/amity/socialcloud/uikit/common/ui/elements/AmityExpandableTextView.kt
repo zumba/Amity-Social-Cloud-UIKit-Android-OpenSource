@@ -17,7 +17,6 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
@@ -31,10 +30,13 @@ import com.google.gson.JsonObject
 fun AmityExpandableText(
     modifier: Modifier = Modifier,
     text: String,
-    mentionGetter: AmityMentionMetadataGetter,
-    mentionees: List<AmityMentionee>,
+    mentionGetter: AmityMentionMetadataGetter = AmityMentionMetadataGetter(JsonObject()),
+    mentionees: List<AmityMentionee> = emptyList(),
     style: TextStyle = AmityTheme.typography.body,
+    previewLines: Int = 8,
+    intialExpand: Boolean = false,
     onClick: () -> Unit = {},
+    onMentionedUserClick: (String) -> Unit = {},
 ) {
     val uriHandler = LocalUriHandler.current
 
@@ -53,12 +55,13 @@ fun AmityExpandableText(
             mutableStateOf(
                 getTrimmedText(
                     text = text,
-                    textLayoutResult = textLayoutResult
+                    textLayoutResult = textLayoutResult,
+                    visiblePreviewLines = previewLines,
                 )
             )
         }
         var isReadMoreClicked by rememberSaveable(text, trimmedText) {
-            mutableStateOf(text == trimmedText)
+            mutableStateOf(intialExpand || text == trimmedText)
         }
 
         val annotatedString = buildAnnotatedString {
@@ -102,8 +105,7 @@ fun AmityExpandableText(
             text.extractUrls().forEach {
                 addStyle(
                     style = SpanStyle(
-                        color = AmityTheme.colors.highlight,
-                        textDecoration = TextDecoration.Underline
+                        color = AmityTheme.colors.highlight
                     ),
                     start = it.start,
                     end = it.end,
@@ -123,12 +125,25 @@ fun AmityExpandableText(
                 }
             }
         }
+
         val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
-        val pressIndicator = Modifier.pointerInput(Unit) {
+        val pressIndicator = Modifier.pointerInput(annotatedString) {
             detectTapGestures(
-                onPress = { offset ->
+                onTap = { offset ->
                     layoutResult.value?.let {
                         val position = it.getOffsetForPosition(offset)
+                        val mentionedUser = annotatedString.getStringAnnotations(
+                            tag = "USER_MENTION",
+                            start = position,
+                            end = position
+                        )
+
+                        if (mentionedUser.isNotEmpty()) {
+                            val userId = mentionedUser.first().item
+                            onMentionedUserClick(userId)
+                            return@let
+                        }
+
                         val annotations = annotatedString.getStringAnnotations(
                             tag = "URL",
                             start = position,
@@ -167,16 +182,27 @@ fun AmityExpandableText(
     }
 }
 
-private fun getTrimmedText(text: String, textLayoutResult: TextLayoutResult): String {
+private fun getTrimmedText(
+    text: String,
+    textLayoutResult: TextLayoutResult,
+    visiblePreviewLines: Int
+): String {
     return if (textLayoutResult.lineCount >= visiblePreviewLines) {
         val startIndex = textLayoutResult.getLineStart(visiblePreviewLines - 1)
         val endIndex = textLayoutResult.getLineEnd(visiblePreviewLines - 1)
         val lastLine = text.substring(startIndex, endIndex)
-        if (lastLine.length > 25) {
+
+        val newText = if (lastLine.length > 25) {
             val lengthToReduce = readMore.length * 3 / 2
             text.substring(0, endIndex - lengthToReduce)
         } else {
             text.substring(0, endIndex)
+        }
+
+        if (newText.endsWith("\n")) {
+            newText.replaceRange(endIndex - 1, endIndex, "")
+        } else {
+            newText
         }
     } else {
         text
@@ -184,13 +210,12 @@ private fun getTrimmedText(text: String, textLayoutResult: TextLayoutResult): St
 }
 
 private const val readMore = "…See more"
-private const val visiblePreviewLines = 8
 
 @Preview(showBackground = true)
 @Composable
 fun AmityExpandableTextPreview() {
     AmityExpandableText(
-        text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur neque urna, malesuada sit amet mattis sit amet, fringilla vitae eros. Phasellus tristique dolor ut nulla tincidunt sollicitudin. Sed eu bibendum nibh. Cras sed ligula nunc. Fusce mollis hendrerit erat, in tempus nisl rhoncus nec. Vivamus vel dictum lectus. Sed suscipit ante sit amet nulla hendrerit, at tincidunt odio suscipit. Nam cursus malesuada eros, et aliquet sem. Quisque ligula nunc, aliquet sit amet scelerisque eleifend, cursus ut nisl. Sed condimentum eleifend sollicitudin. Nam nec magna egestas, ullamcorper diam in, eleifend justo. Quisque aliquam elit sollicitudin, viverra ex non, ultrices erat. Morbi fermentum, turpis et accumsan ultrices, felis metus posuere sem, at feugiat mi velit quis risus.",
+        text = "www.google.com Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur neque urna, malesuada sit amet mattis sit amet, fringilla vitae eros. Phasellus tristique dolor ut nulla tincidunt sollicitudin. Sed eu bibendum nibh. Cras sed ligula nunc. Fusce mollis hendrerit erat, in tempus nisl rhoncus nec. Vivamus vel dictum lectus. Sed suscipit ante sit amet nulla hendrerit, at tincidunt odio suscipit. Nam cursus malesuada eros, et aliquet sem. Quisque ligula nunc, aliquet sit amet scelerisque eleifend, cursus ut nisl. Sed condimentum eleifend sollicitudin. Nam nec magna egestas, ullamcorper diam in, eleifend justo. Quisque aliquam elit sollicitudin, viverra ex non, ultrices erat. Morbi fermentum, turpis et accumsan ultrices, felis metus posuere sem, at feugiat mi velit quis risus.",
         mentionGetter = AmityMentionMetadataGetter(JsonObject()),
         mentionees = emptyList(),
         style = AmityTheme.typography.body,

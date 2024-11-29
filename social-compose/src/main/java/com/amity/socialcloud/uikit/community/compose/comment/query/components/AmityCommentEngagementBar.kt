@@ -32,6 +32,7 @@ import com.amity.socialcloud.uikit.common.reaction.AmityReactionList
 import com.amity.socialcloud.uikit.common.ui.scope.AmityComposeComponentScope
 import com.amity.socialcloud.uikit.common.ui.theme.AmityTheme
 import com.amity.socialcloud.uikit.common.utils.clickableWithoutRipple
+import com.amity.socialcloud.uikit.community.compose.AmitySocialBehaviorHelper
 import com.amity.socialcloud.uikit.community.compose.R
 import com.amity.socialcloud.uikit.community.compose.comment.AmityCommentTrayComponentViewModel
 
@@ -49,6 +50,9 @@ fun AmityCommentEngagementBar(
 ) {
     val context = LocalContext.current
     val haptics = LocalHapticFeedback.current
+    val behavior by lazy {
+        AmitySocialBehaviorHelper.commentTrayComponentBehavior
+    }
 
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
         "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
@@ -82,8 +86,7 @@ fun AmityCommentEngagementBar(
 
                 Text(
                     text = context.getString(
-                        if (isReacted) R.string.amity_liked
-                        else R.string.amity_like
+                        R.string.amity_like
                     ),
                     style = AmityTheme.typography.caption.copy(
                         color = if (isReacted) AmityTheme.colors.primary
@@ -176,9 +179,16 @@ fun AmityCommentEngagementBar(
                 modifier = modifier,
                 referenceType = AmityReactionReferenceType.COMMENT,
                 referenceId = comment.getCommentId(),
-            ) {
-                showReactionListSheet = false
-            }
+                onClose = {
+                    showReactionListSheet = false
+                },
+                onUserClick = {
+                    behavior.goToUserProfilePage(
+                        context = context,
+                        userId = it,
+                    )
+                }
+            )
         }
     }
 }

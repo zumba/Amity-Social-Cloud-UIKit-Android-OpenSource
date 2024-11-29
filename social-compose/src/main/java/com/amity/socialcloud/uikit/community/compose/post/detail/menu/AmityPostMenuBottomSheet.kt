@@ -23,12 +23,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.amity.socialcloud.sdk.api.core.AmityCoreClient
+import com.amity.socialcloud.sdk.api.social.post.review.AmityReviewStatus
+import com.amity.socialcloud.sdk.model.social.community.AmityCommunityPostSettings
 import com.amity.socialcloud.sdk.model.social.post.AmityPost
 import com.amity.socialcloud.uikit.common.ui.elements.AmityBottomSheetActionItem
 import com.amity.socialcloud.uikit.common.ui.theme.AmityTheme
 import com.amity.socialcloud.uikit.common.utils.showToast
 import com.amity.socialcloud.uikit.community.compose.AmitySocialBehaviorHelper
 import com.amity.socialcloud.uikit.community.compose.R
+import com.amity.socialcloud.uikit.community.compose.post.detail.AmityPostCategory
 import io.reactivex.rxjava3.core.Flowable
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -36,6 +39,7 @@ import io.reactivex.rxjava3.core.Flowable
 fun AmityPostMenuBottomSheet(
     modifier: Modifier = Modifier,
     post: AmityPost,
+    category: AmityPostCategory = AmityPostCategory.GENERAL
 ) {
     val context = LocalContext.current
     val behavior by lazy {
@@ -111,16 +115,44 @@ fun AmityPostMenuBottomSheet(
                         modifier = modifier
                             .padding(start = 16.dp, end = 16.dp, bottom = 64.dp)
                     ) {
-                        if (post.getCreatorId() == AmityCoreClient.getUserId()) {
+                        val isPollPost = post.getChildren().any { it.getData() is AmityPost.Data.POLL }
+
+                        if (post.getCreatorId() == AmityCoreClient.getUserId() && !isPollPost) {
                             AmityBottomSheetActionItem(
                                 icon = R.drawable.amity_ic_edit_profile,
                                 text = "Edit post",
                                 modifier = modifier.testTag("bottom_sheet_edit_button"),
                             ) {
                                 viewModel.updateSheetUIState(AmityPostMenuSheetUIState.CloseSheet)
-                                behavior.goToPostComposerPage(
-                                    context = context,
-                                    post = post,
+                                val target = post.getTarget()
+                                if(category == AmityPostCategory.GLOBAL
+                                    && target is AmityPost.Target.COMMUNITY
+                                    && target.getCommunity()?.getPostSettings() == AmityCommunityPostSettings.ADMIN_REVIEW_POST_REQUIRED
+                                    && post.getReviewStatus() == AmityReviewStatus.PUBLISHED) {
+                                    viewModel.updateDialogUIState(
+                                        AmityPostMenuDialogUIState.OpenConfirmEditDialog(postId = post.getPostId())
+                                    )
+                                } else {
+                                    behavior.goToPostComposerPage(
+                                        context = context,
+                                        post = post,
+                                    )
+                                }
+                            }
+                        }
+
+                        val postData = post.getChildren().firstOrNull()?.getData() as? AmityPost.Data.POLL
+                        val poll = postData?.getPoll()?.blockingFirst()
+                        val isPollActive = poll?.getClosedAt()?.isAfterNow ?: false
+                        if (post.getCreatorId() == AmityCoreClient.getUserId() && post.getReviewStatus() != AmityReviewStatus.UNDER_REVIEW && isPollActive) {
+                            AmityBottomSheetActionItem(
+                                icon = R.drawable.ic_amity_ic_poll_create,
+                                text = "Close poll",
+                                modifier = modifier.testTag("bottom_sheet_edit_button"),
+                            ) {
+                                viewModel.updateSheetUIState(AmityPostMenuSheetUIState.CloseSheet)
+                                viewModel.updateDialogUIState(
+                                    AmityPostMenuDialogUIState.OpenConfirmClosePollDialog(pollId = poll!!.getPollId())
                                 )
                             }
                         }

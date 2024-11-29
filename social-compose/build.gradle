@@ -15,6 +15,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.7"
     }
+    packagingOptions {
+        pickFirst("META-INF/*.kotlin_module")
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/io.netty.versions.properties'
+    }
 }
 
 dependencies {
@@ -36,4 +41,6 @@ dependencies {
 
     implementation "androidx.camera:camera-view:1.2.2"
     implementation "androidx.camera:camera-extensions:1.2.2"
+    implementation("$amitySDKDependency:amity-video-publisher:$amityMessagingSdkVersion")
+    implementation("$amitySDKDependency:amity-video-player:$amityMessagingSdkVersion")
 }

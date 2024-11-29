@@ -251,8 +251,8 @@
     },
     "social_home_page/my_communities/community_category_name": {},
     "social_home_page/my_communities/community_members_count": {},
-    "social_home_page/newsfeed_component/*": {},
-    "social_home_page/global_feed_component/*": {},
+    "social_home_page/newsfeed/*": {},
+    "social_home_page/global_feed/*": {},
     "post_detail_page/*/back_button": {
       "icon": "backIcon"
     },
@@ -438,13 +438,7 @@
     "community_profile_page/*/menu_button": {
       "image": "threeDotIcon"
     },
-    "community_profile_page/community_profile_tab/*": {},
-    "community_profile_page/community_profile_tab/community_feed_tab_button": {
-      "image": "communityFeedIcon"
-    },
-    "community_profile_page/community_profile_tab/community_pin_tab_button": {
-      "image": "communityPinIcon"
-    },
+    "community_profile_page/*/community_profile_tab": {},
     "community_profile_page/community_feed/*": {},
     "community_profile_page/community_pin/*": {},
     "community_profile_page/*/community_create_post_button": {
@@ -505,6 +499,14 @@
       "text": "Save",
       "image": ""
     },
+    "community_setup_page/*/image_button": {
+      "text": "Photo",
+      "image": "postAttachmentPhoto"
+    },
+    "community_setup_page/*/camera_button": {
+      "text": "Camera",
+      "image": "postAttachmentCamera"
+    },
     "community_add_category_page/*/*": {},
     "community_add_member_page/*/*": {},
     "community_membership_page/*/*": {},
@@ -553,6 +555,170 @@
     },
     "pending_posts_page/pending_post_content/post_decline_button": {
       "text": "Decline"
+    },
+    "user_profile_page/*/*": {},
+    "user_profile_page/*/back_button": {
+      "image": "backIcon"
+    },
+    "user_profile_page/*/menu_button": {
+      "image": "menuIcon"
+    },
+    "user_profile_page/*/user_feed_tab_button": {
+      "image": "profileFeedIcon"
+    },
+    "user_profile_page/*/user_image_feed_tab_button": {
+      "image": "profileImageFeedIcon"
+    },
+    "user_profile_page/*/user_video_feed_tab_button": {
+      "image": "profileVideoFeedIcon"
+    },
+    "user_profile_page/user_profile_header/*": {},
+    "user_profile_page/user_feed/*": {},
+    "user_profile_page/user_image_feed/*": {},
+    "user_profile_page/user_video_feed/*": {},
+    "user_relationship_page/*/*": {},
+    "user_pending_follow_request_page/*/*": {},
+    "user_profile_page/user_profile_header/follow_user_button": {
+      "text": "Follow",
+      "image": "plusIcon"
+    },
+    "user_profile_page/user_profile_header/following_user_button": {
+      "text": "Following",
+      "image": "followingIcon"
+    },
+    "user_profile_page/user_profile_header/pending_user_button": {
+      "text": "Cancel request",
+      "image": "pendingIcon"
+    },
+    "user_profile_page/user_profile_header/unblock_user_button": {
+      "text": "Unblock",
+      "image": "blockedIcon"
+    },
+    "user_profile_page/user_profile_header/user_avatar": {},
+    "user_profile_page/user_profile_header/user_name": {},
+    "user_profile_page/user_profile_header/user_description": {},
+    "user_profile_page/user_profile_header/user_following": {
+      "text": "following"
+    },
+    "user_profile_page/user_profile_header/user_follower": {
+      "text": "followers"
+    },
+    "user_profile_page/user_feed/empty_user_feed": {
+      "text": "No post yet",
+      "image": "emptyProfileFeedIcon"
+    },
+    "user_profile_page/user_feed/private_user_feed": {
+      "text": "This account is private",
+      "image": "lockIcon"
+    },
+    "user_profile_page/user_feed/private_user_feed_info": {
+      "text": "Follow this user to see their posts."
+    },
+    "user_profile_page/user_feed/blocked_user_feed": {
+      "text": "You've blocked this user",
+      "image": "blockedIcon"
+    },
+    "user_profile_page/user_feed/blocked_user_feed_info": {
+      "text": "Unblock to see their posts."
+    },
+    "user_profile_page/user_image_feed/empty_user_image_feed": {
+      "text": "No photo yet",
+      "image": "emptyPhotoIcon"
+    },
+    "user_profile_page/user_image_feed/private_user_image_feed": {
+      "text": "This account is private",
+      "image": "lockIcon"
+    },
+    "user_profile_page/user_image_feed/private_user_image_feed_info": {
+      "text": "Follow this user to see their posts."
+    },
+    "user_profile_page/user_image_feed/blocked_user_image_feed": {
+      "text": "You've blocked this user",
+      "image": "blockedIcon"
+    },
+    "user_profile_page/user_image_feed/blocked_user_image_feed_info": {
+      "text": "Unblock to see their posts."
+    },
+    "user_profile_page/user_video_feed/empty_user_video_feed": {
+      "text": "No video yet",
+      "image": "emptyVideoIcon"
+    },
+    "user_profile_page/user_video_feed/private_user_video_feed": {
+      "text": "This account is private",
+      "image": "lockIcon"
+    },
+    "user_profile_page/user_video_feed/private_user_video_feed_info": {
+      "text": "Follow this user to see their posts."
+    },
+    "user_profile_page/user_video_feed/blocked_user_video_feed": {
+      "text": "You've blocked this user",
+      "image": "blockedIcon"
+    },
+    "user_profile_page/user_video_feed/blocked_user_video_feed_info": {
+      "text": "Unblock to see their posts."
+    },
+    "edit_user_profile_page/*/*": {},
+    "edit_user_profile_page/*/back_button": {
+      "image": "backIcon"
+    },
+    "edit_user_profile_page/*/title": {
+      "text": "Edit profile"
+    },
+    "edit_user_profile_page/*/user_display_name_title": {
+      "text": "Display name"
+    },
+    "edit_user_profile_page/*/user_about_title": {
+      "text": "About"
+    },
+    "edit_user_profile_page/*/update_user_profile_button": {
+      "text": "Save"
+    },
+    "blocked_users_page/*/*": {},
+    "blocked_users_page/*/back_button": {
+      "image": "backIcon"
+    },
+    "blocked_users_page/*/title": {
+      "text": "Manage blocked users"
+    },
+    "blocked_users_page/*/unblock_user_button": {
+      "text": "Unblock"
+    },
+    "social_home_page/trending_communities/*": {
+    },
+    "social_home_page/trending_communities/community_official_badge": {
+      "image": "officialBadgeIcon"
+    },
+    "social_home_page/trending_communities/community_private_badge": {
+      "image": "lockIcon"
+    },
+    "social_home_page/recommended_communities/*": {
+    },
+    "social_home_page/recommended_communities/community_official_badge": {
+      "image": "officialBadgeIcon"
+    },
+    "social_home_page/recommended_communities/community_private_badge": {
+      "image": "lockIcon"
+    },
+    "communities_by_category_page/*/*": {
+      "image": "lockIcon"
+    },
+    "communities_by_category_page/*/community_official_badge": {
+      "image": "officialBadgeIcon"
+    },
+    "communities_by_category_page/*/community_private_badge": {
+      "image": "lockIcon"
+    },
+    "all_categories_page/*/*": {},
+    "poll_post_composer_page/*/*": {},
+    "select_poll_target_page/*/close_button": {
+      "image": "closeIcon"
+    },
+    "select_poll_target_page/*/my_timeline_avatar": {},
+    "select_poll_target_page/*/title": {
+      "text": "Post to"
+    },
+    "select_poll_target_page/*/my_timeline_text": {
+      "text": "My Timeline"
     }
   }
 }

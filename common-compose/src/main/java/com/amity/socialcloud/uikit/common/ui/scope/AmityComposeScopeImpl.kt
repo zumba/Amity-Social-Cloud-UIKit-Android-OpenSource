@@ -4,9 +4,11 @@ import androidx.annotation.DrawableRes
 import androidx.compose.material3.SnackbarHostState
 import com.amity.socialcloud.uikit.common.config.AmityUIKitConfig
 import com.amity.socialcloud.uikit.common.config.AmityUIKitConfigController
+import com.amity.socialcloud.uikit.common.eventbus.AmityUIKitSnackbar
 import com.amity.socialcloud.uikit.common.ui.elements.AmityProgressSnackbarVisuals
 import com.amity.socialcloud.uikit.common.ui.elements.AmitySnackbarVisuals
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 internal class AmityComposePageScopeImpl(
@@ -14,6 +16,17 @@ internal class AmityComposePageScopeImpl(
     private val snackbarHostState: SnackbarHostState,
     private val coroutineScope: CoroutineScope,
 ) : AmityComposePageScope {
+
+    init {
+        coroutineScope.launch {
+            AmityUIKitSnackbar.snackbarMessage.collectLatest { message ->
+                if (message != null) {
+                    showSnackbar(message)
+                    AmityUIKitSnackbar.publishSnackbarMessage(null)
+                }
+            }
+        }
+    }
 
     override fun getId(): String {
         return pageId
@@ -114,10 +127,13 @@ internal class AmityComposeComponentScopeImpl(
 
     override fun getAccessibilityId(viewId: String): String {
         val sb = StringBuilder()
-        sb.append(componentId)
+        sb.append(pageId)
         sb.append("/")
+        sb.append(componentId)
+        sb.append("/*")
 
         if (viewId.isNotEmpty()) {
+            sb.append("_")
             sb.append(viewId)
         }
         return sb.toString()
