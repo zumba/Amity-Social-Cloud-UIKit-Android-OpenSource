@@ -284,7 +284,7 @@ abstract class AmityBaseCreatePostFragment : AmityBaseFragment(),
         if (options == null) {
             options = arrayListOf(
                 AmityPostAttachmentOptionItem.PHOTO,
-                // adding video attachments disabled temporarily due to lack of HEVC support
+                // adding video attachments disabled due to legal concerns
                 // AmityPostAttachmentOptionItem.VIDEO,
                 AmityPostAttachmentOptionItem.FILE
             )

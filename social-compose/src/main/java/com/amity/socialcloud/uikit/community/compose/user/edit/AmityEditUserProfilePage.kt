@@ -175,6 +175,8 @@ fun AmityEditUserProfilePage(
                                 .align(Alignment.CenterStart)
                         )
 
+                        /*
+                        // Disable updating the Display Name
                         Text(
                             text = "${displayName.length}/$UserDisplayNameLimit",
                             style = AmityTheme.typography.caption.copy(
@@ -183,13 +185,16 @@ fun AmityEditUserProfilePage(
                             ),
                             modifier = Modifier.align(Alignment.CenterEnd)
                         )
+                        */
                     }
 
                     AmityTextField(
                         text = displayName,
                         hint = getConfig().getText(),
                         maxCharacters = UserDisplayNameLimit,
-                        enabled = shouldAllowDisplayNameEditing,
+                        // Disable updating the Display Name
+                        // enabled = shouldAllowDisplayNameEditing,
+                        enabled = false,
                         maxLines = 3,
                         onValueChange = {
                             displayName = it

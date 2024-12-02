@@ -109,7 +109,7 @@ class AmityNewsFeedFragment : AmityBaseFragment(),
                     titleResId = R.string.amity_post,
                     action = {
                         // creationTargetSelection.launch(AmityTargetSelectionPageType.POST)
-                        // use V4 version to not use READ_MEDIA_* permissions for attachments
+                        // use V4 version for consistency
                         behavior.goToSelectPostTargetPage(
                             context = requireContext(),
                             type = AmityPostTargetSelectionPageType.POST
@@ -143,7 +143,9 @@ class AmityNewsFeedFragment : AmityBaseFragment(),
                     iconResId = R.drawable.ic_amity_ic_poll_create,
                     titleResId = R.string.amity_general_poll,
                     action = {
-                        creationTargetSelection.launch(AmityTargetSelectionPageType.POLL)
+                        // creationTargetSelection.launch(AmityTargetSelectionPageType.POLL)
+                        // use V4 version for consistency
+                        behavior.goToSelectPollTargetPage(requireContext())
                         bottomSheet.dismiss()
                     }
                 )

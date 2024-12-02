@@ -85,7 +85,7 @@ class AmityUserProfilePageFragment : AmityBaseFragment(),
         registerForActivityResult(AmityPollPostCreatorActivity.AmityPollCreatorActivityContract()) {
         }
     private val behavior by lazy {
-        AmitySocialBehaviorHelper.postTargetSelectionPageBehavior
+        AmitySocialBehaviorHelper.userProfilePageBehavior
     }
     private val createGenericPostV4Launcher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -173,12 +173,8 @@ class AmityUserProfilePageFragment : AmityBaseFragment(),
                     titleResId = R.string.amity_post,
                     action = {
                         // createGenericPost.launch(null)
-                        // use V4 version to not use READ_MEDIA_* permissions for attachments
-                        behavior.goToPostComposerPage(
-                            context = requireContext(),
-                            launcher = createGenericPostV4Launcher,
-                            targetType = AmityPostTargetType.USER,
-                        )
+                        // use V4 version for consistency
+                        behavior.goToPostComposerPage(requireContext(), viewModel.userId)
                         bottomSheet.dismiss()
                     }
                 ),
@@ -196,7 +192,9 @@ class AmityUserProfilePageFragment : AmityBaseFragment(),
                     iconResId = R.drawable.ic_amity_ic_poll_create,
                     titleResId = R.string.amity_general_poll,
                     action = {
-                        createPollPost.launch(null)
+                        // createPollPost.launch(null)
+                        // use V4 version for consistency
+                        behavior.goToPollComposerPage(requireContext(), viewModel.userId)
                         bottomSheet.dismiss()
                     }
                 )

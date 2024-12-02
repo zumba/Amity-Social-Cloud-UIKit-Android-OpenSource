@@ -57,7 +57,7 @@ class AmityMediaGalleryFragment : AmityBaseFragment() {
         fragmentStateAdapter.setFragmentList(
             arrayListOf(
                 photoGalleryFragment(),
-                // adding video attachments disabled temporarily due to lack of HEVC support
+                // adding video attachments disabled due to legal concerns
                 // videoGalleryFragment()
             )
         )

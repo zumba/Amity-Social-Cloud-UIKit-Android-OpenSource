@@ -49,9 +49,12 @@ fun AmityEditUserAvatar(
         modifier = modifier
             .size(64.dp)
             .clip(CircleShape)
+            /*
+            // Disable updating the avatar
             .clickableWithoutRipple {
                 imagePickerLauncher.launch(PickVisualMediaRequest(mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly))
             }
+            */
     ) {
         if (avatarUri == Uri.EMPTY) {
             AmityUserAvatarView(
@@ -66,6 +69,8 @@ fun AmityEditUserAvatar(
                 modifier = modifier.fillMaxWidth(),
             )
         }
+        /*
+        // Disable updating the avatar
         Box(
             modifier = modifier
                 .fillMaxSize()
@@ -78,5 +83,6 @@ fun AmityEditUserAvatar(
             tint = Color.White,
             modifier = modifier.align(Alignment.Center)
         )
+        */
     }
 }
