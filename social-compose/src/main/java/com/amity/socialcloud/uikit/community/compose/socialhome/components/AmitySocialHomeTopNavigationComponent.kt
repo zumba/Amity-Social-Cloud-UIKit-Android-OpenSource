@@ -96,7 +96,12 @@ fun AmitySocialHomeTopNavigationComponent(
                 var expanded by remember { mutableStateOf(false) }
                 when (selectedTab) {
                     AmitySocialHomePageTab.NEWSFEED,
-                    AmitySocialHomePageTab.MY_COMMUNITIES -> {
+                    /*
+                    // Disabled creating communities by the user
+                    AmitySocialHomePageTab.MY_COMMUNITIES
+                    */ -> {
+                        Spacer(modifier = modifier.width(10.dp))
+
                         AmityBaseElement(
                             pageScope = pageScope,
                             componentScope = getComponentScope(),

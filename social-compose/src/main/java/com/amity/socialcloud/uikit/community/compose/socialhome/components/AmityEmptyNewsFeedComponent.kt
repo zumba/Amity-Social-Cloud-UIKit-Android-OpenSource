@@ -79,6 +79,8 @@ fun AmityEmptyNewsFeedComponent(
                         modifier = modifier.testTag(getAccessibilityId()),
                     )
                 }
+                /*
+                // Disabled creating communities by the user
                 AmityBaseElement(
                     pageScope = pageScope,
                     componentScope = getComponentScope(),
@@ -93,6 +95,7 @@ fun AmityEmptyNewsFeedComponent(
                         modifier = modifier.testTag(getAccessibilityId()),
                     )
                 }
+                */
 
                 Spacer(modifier = modifier.height(17.dp))
 
@@ -130,6 +133,8 @@ fun AmityEmptyNewsFeedComponent(
                     }
                 }
 
+                /*
+                // Disabled creating communities by the user
                 Spacer(modifier = modifier.height(4.dp))
 
                 AmityBaseElement(
@@ -150,6 +155,7 @@ fun AmityEmptyNewsFeedComponent(
                             .testTag(getAccessibilityId()),
                     )
                 }
+                */
             }
         }
     }
