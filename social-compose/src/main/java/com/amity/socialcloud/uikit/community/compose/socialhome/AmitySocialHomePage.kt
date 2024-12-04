@@ -159,6 +159,9 @@ fun AmitySocialHomePage(
                                 pageScope = getPageScope(),
                                 onExploreRequested = {
                                     selectedTab = AmitySocialHomePageTab.EXPLORE
+                                    scrollScope.launch {
+                                        pagerState.scrollToPage(1)
+                                    }
                                 }
                             )
                         }

@@ -28,6 +28,7 @@ import com.amity.socialcloud.uikit.common.utils.getText
 import com.amity.socialcloud.uikit.community.compose.AmitySocialBehaviorHelper
 import com.amity.socialcloud.uikit.community.compose.socialhome.AmitySocialHomePageTab
 import com.amity.socialcloud.uikit.community.compose.socialhome.elements.AmitySocialHomeNavigationButton
+import com.amity.socialcloud.uikit.community.compose.R
 
 @Composable
 fun AmitySocialHomeTopNavigationComponent(
@@ -93,10 +94,25 @@ fun AmitySocialHomeTopNavigationComponent(
 
                 Spacer(modifier = modifier.width(10.dp))
 
+                AmitySocialHomeNavigationButton(
+                    icon = R.drawable.amity_ic_user_profile,
+                    background = AmityTheme.colors.baseShade4,
+                    iconSize = 16.dp,
+                    modifier = modifier.size(32.dp),
+                    onClick = {
+                        behavior.goToUserProfilePage(context)
+                    },
+                )
+
                 var expanded by remember { mutableStateOf(false) }
                 when (selectedTab) {
                     AmitySocialHomePageTab.NEWSFEED,
-                    AmitySocialHomePageTab.MY_COMMUNITIES -> {
+                    /*
+                    // Disabled creating communities by the user
+                    AmitySocialHomePageTab.MY_COMMUNITIES
+                    */ -> {
+                        Spacer(modifier = modifier.width(10.dp))
+
                         AmityBaseElement(
                             pageScope = pageScope,
                             componentScope = getComponentScope(),

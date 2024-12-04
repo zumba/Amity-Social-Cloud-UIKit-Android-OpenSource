@@ -208,7 +208,7 @@
     "message_reaction_list_page/message_reaction_list/reaction_image_view": {},
     "social_home_page/*/*": {},
     "social_home_page/top_navigation/header_label": {
-      "text": "Community"
+      "text": "Community Groups"
     },
     "social_home_page/top_navigation/global_search_button": {
       "icon": "searchButtonIcon"
